@@ -17,14 +17,17 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class AutoFishing
     implements NamedPropertyChangeSubject, NativeKeyListener
 {
 
   private static final String FISHING_SUBTITLE = "Hote";
-  public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159, 1187, 400, 252);
-  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1520, 828, 400, 252);
+  public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159,
+      1187, 400, 252);
+  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1520, 828,
+      400, 252);
   private Rectangle currentFishingRegion = FISHING_REGION_DEFAULT;
 
   private boolean isRunning;
@@ -42,19 +45,19 @@ public class AutoFishing
     try
     {
       this.robot = new Robot();
-            GlobalScreen.registerNativeHook();
-            GlobalScreen.addNativeKeyListener(this);
+      GlobalScreen.registerNativeHook();
+      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot: " + e.getMessage(), e);
     }
-        catch (NativeHookException e)
-        {
-          System.err.println("There was a problem registering the native hook.");
-          System.err.println(e.getMessage());
-        }
+    catch (NativeHookException e)
+    {
+      System.err.println("There was a problem registering the native hook.");
+      System.err.println(e.getMessage());
+    }
     this.tesseract = new Tesseract();
     tesseract.setDatapath(
         "C:/Users/niels/IdeaProjects/Scripts/MinecraftMiningScript/tessdata");
@@ -117,54 +120,72 @@ public class AutoFishing
     }
   }
 
-  private void runFishing() {
-    try {
+  private void runFishing()
+  {
+    try
+    {
       robot.mousePress(InputEvent.BUTTON3_MASK);
       robot.mouseRelease(InputEvent.BUTTON3_MASK);
       System.out.println("Initial right-click performed.");
       Thread.sleep(500);
 
-      while (isRunning) {
-        BufferedImage screenshot = robot.createScreenCapture(currentFishingRegion);
+      while (isRunning)
+      {
+        BufferedImage screenshot = robot.createScreenCapture(
+            currentFishingRegion);
 
         File outputfile = new File("saved.png");
         ImageIO.write(screenshot, "png", outputfile);
 
         String result = "";
-        try {
+        try
+        {
           result = tesseract.doOCR(screenshot);
           System.out.println("OCR Result: \"" + result.trim() + "\"");
-        } catch (TesseractException e) {
+        }
+        catch (TesseractException e)
+        {
           System.err.println("Tesseract OCR error: " + e.getMessage());
           boolean oldValue = this.isRunning;
           isRunning = false;
           property.firePropertyChange("isRunning", oldValue, this.isRunning);
           break;
         }
-
-        if (result.contains(FISHING_SUBTITLE)) {
-          System.out.println("Subtitle detected! Performing actions.");
+        if (result.contains(FISHING_SUBTITLE))
+        {
+          System.out.println("Fish detected! Performing actions.");
+          Thread.sleep(randomDelay(200, 500));
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
 
-          Thread.sleep(2500);
-
+          Thread.sleep(randomDelay(2600, 3000));
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
           property.firePropertyChange("fishCaught", false, true);
         }
-        Thread.sleep(500);
+        Thread.sleep(randomDelay(300, 600));
       }
-    } catch (InterruptedException e) {
+    }
+    catch (InterruptedException e)
+    {
       Thread.currentThread().interrupt();
       boolean oldValue = this.isRunning;
       isRunning = false;
       property.firePropertyChange("isRunning", oldValue, this.isRunning);
       System.err.println("Fishing thread interrupted.");
-    } catch (IOException e) {
+    }
+    catch (IOException e)
+    {
       isRunning = false;
       property.firePropertyChange("error", null, e.getMessage());
     }
+  }
+
+  private int randomDelay(int minDelay, int maxDelay)
+  {
+    int min = Math.min(minDelay, maxDelay);
+    int max = Math.max(minDelay, maxDelay);
+    return (int) (min + (Math.random() * (max - min)));
   }
 
   public void setTriggerKeyCode(int triggerKeyCode)
