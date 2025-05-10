@@ -12,14 +12,15 @@ import java.awt.event.InputEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-public class AutoClicker implements NamedPropertyChangeSubject,
-    NativeKeyListener
+public class AutoClicker
+    implements NamedPropertyChangeSubject, NativeKeyListener
 {
   private volatile boolean isRunning = false;
   private Robot robot;
   private int delay;
   private PropertyChangeSupport property;
-  private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
+  private int triggerKeyCode = NativeKeyEvent.VC_CAPS_LOCK;
+  private boolean isEnabled = false;
 
   public AutoClicker(int delay)
   {
@@ -28,25 +29,40 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     try
     {
       this.robot = new Robot();
-      GlobalScreen.registerNativeHook();
-      GlobalScreen.addNativeKeyListener(this);
+      //      GlobalScreen.registerNativeHook();
+      //      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot class: " + e.getMessage(), e);
     }
-    catch (NativeHookException e)
-    {
-      System.err.println("There was a problem registering the native hook.");
-      System.err.println(e.getMessage());
-    }
+    //    catch (NativeHookException e)
+    //    {
+    //      System.err.println("There was a problem registering the native hook.");
+    //      System.err.println(e.getMessage());
+    //    }
   }
 
-  public void shutdownHook() {
-    try {
+  public void enable()
+  {
+    isEnabled = true;
+  }
+
+  public void disable()
+  {
+    isEnabled = false;
+    stopAutoClicker();
+  }
+
+  public void shutdownHook()
+  {
+    try
+    {
       GlobalScreen.unregisterNativeHook();
-    } catch (NativeHookException e) {
+    }
+    catch (NativeHookException e)
+    {
       System.err.println("Failed to unregister native hook: " + e.getMessage());
     }
   }
@@ -68,12 +84,13 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     property.firePropertyChange("delay", oldValue, this.delay);
   }
 
-  private void performClick()
+  private void performClick() throws InterruptedException
   {
     if (robot != null && isRunning)
     {
       System.out.println("Clicked!");
       System.out.println(isRunning);
+      Thread.sleep(500);
       robot.mousePress(InputEvent.BUTTON1_MASK);
       System.out.println("Released!");
       System.out.println(isRunning);
@@ -89,7 +106,7 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     {
       boolean oldValue = this.isRunning;
       isRunning = true;
-      property.firePropertyChange("isRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
       Thread clickerThread = new Thread(() -> {
         try
         {
@@ -105,14 +122,14 @@ public class AutoClicker implements NamedPropertyChangeSubject,
           Thread.currentThread().interrupt();
           boolean oldValueInterrupt = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isRunning", oldValueInterrupt,
+          property.firePropertyChange("isAutoGrindRunning", oldValueInterrupt,
               this.isRunning);
         }
         catch (Exception e)
         {
           boolean oldValueException = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isRunning", oldValueException,
+          property.firePropertyChange("isAutoGrindRunning", oldValueException,
               this.isRunning);
           throw new RuntimeException(
               "Error during autoClicking: " + e.getMessage());
@@ -129,7 +146,7 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     {
       boolean oldValue = this.isRunning;
       isRunning = false;
-      property.firePropertyChange("isRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
       System.out.println("Stopped! ");
     }
   }
@@ -139,19 +156,28 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     this.triggerKeyCode = triggerKeyCode;
   }
 
-  @Override
-  public void nativeKeyPressed(NativeKeyEvent e) {
-    if (e.getKeyCode() == triggerKeyCode) {
-      if (isRunning) {
+  @Override public void nativeKeyPressed(NativeKeyEvent e)
+  {
+    if (isEnabled && e.getKeyCode() == triggerKeyCode)
+    {
+      if (isRunning)
+      {
         stopAutoClicker();
-      } else {
+      }
+      else
+      {
         startAutoClicker();
       }
     }
   }
 
-  @Override public void nativeKeyReleased(NativeKeyEvent e) {}
-  @Override public void nativeKeyTyped(NativeKeyEvent e) {}
+  @Override public void nativeKeyReleased(NativeKeyEvent e)
+  {
+  }
+
+  @Override public void nativeKeyTyped(NativeKeyEvent e)
+  {
+  }
 
   @Override public void addListener(String propertyName,
       PropertyChangeListener listener)

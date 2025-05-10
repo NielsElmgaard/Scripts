@@ -14,6 +14,7 @@ public class ViewHandler
   private MinecraftMiningScriptsViewController minecraftMiningScriptsViewController;
   private AutoClickViewController autoclickViewController;
   private AutoFishingViewController autoFishingViewController;
+  private AutoScriptViewController autoScriptViewController;
 
   public ViewHandler(ViewModelFactory viewModelFactory)
   {
@@ -36,10 +37,13 @@ public class ViewHandler
         root = loadMinecraftMiningScriptsView("MinecraftMiningScriptsView.fxml");
         break;
       case "autoclick":
-        root = loadAutoclickView("AutoClickView.fxml");
+        root = loadAutoclickView("AutoScriptView.fxml");
         break;
       case "autofishing":
         root = loadAutoFishingView("AutoFishingView.fxml");
+        break;
+      case "autoscript":
+        root = loadAutoScriptView("AutoScriptView.fxml");
         break;
     }
     currentScene.setRoot(root);
@@ -131,5 +135,28 @@ public class ViewHandler
     return autoFishingViewController.getRoot();
   }
 
-
+  private Region loadAutoScriptView(String fxmlFile)
+  {
+    if (autoScriptViewController == null)
+    {
+      try
+      {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(fxmlFile));
+        Region root = loader.load();
+        autoScriptViewController = loader.getController();
+        autoScriptViewController
+            .init(this, viewModelFactory.getAutoScriptViewModel(), root);
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
+    else
+    {
+      autoScriptViewController.reset();
+    }
+    return autoScriptViewController.getRoot();
+  }
 }

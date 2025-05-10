@@ -26,14 +26,5 @@
                 </Button>
             </children>
         </HBox>
-      <HBox alignment="CENTER" prefHeight="56.0" prefWidth="600.0">
-         <children>
-            <Button mnemonicParsing="false" onAction="#autoFishingButton" prefHeight="98.0" prefWidth="541.0" text="Auto fishing">
-               <font>
-                  <Font size="43.0" />
-               </font>
-            </Button>
-         </children>
-      </HBox>
     </children>
 </VBox>

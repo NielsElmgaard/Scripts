@@ -2,40 +2,25 @@ package model;
 
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 
+import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 public class ModelManager implements Model
 {
-  private AutoClicker autoClicker;
   private AutoFishing autoFishing;
   private PropertyChangeSupport property;
 
   public ModelManager()
   {
-    this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
     this.property = new PropertyChangeSupport(this);
 
-    autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
-    autoClicker.addListener("isAutoGrindRunning",
-        evt -> property.firePropertyChange(evt));
-
-    autoFishing.addListener("isAutoFishingRunning",
+    autoFishing.addListener("isRunning",
         evt -> property.firePropertyChange(evt));
     autoFishing.addListener("fishCaught",
         evt -> property.firePropertyChange(evt));
     autoFishing.addListener("error", evt -> property.firePropertyChange(evt));
-  }
-
-  @Override public void setTriggerKeyCodeForAutoClicking(int keyCode)
-  {
-    autoClicker.setTriggerKeyCode(keyCode);
-  }
-
-  @Override public NativeKeyListener getAutoClicker()
-  {
-    return autoClicker;
   }
 
   @Override public void setTriggerKeyCodeForAutoFishing(int keyCode)
@@ -53,39 +38,20 @@ public class ModelManager implements Model
     autoFishing.stopFishing();
   }
 
-  @Override public NativeKeyListener getAutoFishing()
+  @Override public Rectangle getCurrentFishingRegion()
   {
-    return autoFishing;
+    return autoFishing.getCurrentFishingRegion();
   }
 
-  @Override public void setAutoClickDelay(int delay)
-  {
-    autoClicker.setDelay(delay);
-  }
-
-  @Override public int getDelay()
-  {
-    return autoClicker.getDelay();
+  public void setFishingRegion(Rectangle region) {
+    Rectangle oldValue = autoFishing.getCurrentFishingRegion();
+    autoFishing.setCurrentFishingRegion(region);
+    property.firePropertyChange("fishingRegionChanged", oldValue, autoFishing.getCurrentFishingRegion());
   }
 
   @Override public boolean isAutoFishingRunning()
   {
     return autoFishing.isRunning();
-  }
-
-  @Override public boolean isAutoGrindRunning()
-  {
-    return autoClicker.isRunning();
-  }
-
-  @Override public void startAutoClicker()
-  {
-    autoClicker.startAutoClicker();
-  }
-
-  @Override public void stopAutoClicker()
-  {
-    autoClicker.stopAutoClicker();
   }
 
   @Override public void addListener(String propertyName,

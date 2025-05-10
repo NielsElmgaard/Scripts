@@ -23,15 +23,16 @@ public class AutoFishing
 {
 
   private static final String FISHING_SUBTITLE = "Hote";
-  private static final Rectangle FISHING_REGION = new Rectangle(2159, 1187, 400,
-      252);
+  public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159, 1187, 400, 252);
+  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1520, 828, 400, 252);
+  private Rectangle currentFishingRegion = FISHING_REGION_DEFAULT;
+
   private boolean isRunning;
   private Robot robot;
   private Thread fishingThread;
   private ITesseract tesseract;
   private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
   private PropertyChangeSupport property;
-  private boolean isEnabled = false;
 
   public AutoFishing()
   {
@@ -41,19 +42,19 @@ public class AutoFishing
     try
     {
       this.robot = new Robot();
-      //      GlobalScreen.registerNativeHook();
-      //      GlobalScreen.addNativeKeyListener(this);
+            GlobalScreen.registerNativeHook();
+            GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot: " + e.getMessage(), e);
     }
-    //    catch (NativeHookException e)
-    //    {
-    //      System.err.println("There was a problem registering the native hook.");
-    //      System.err.println(e.getMessage());
-    //    }
+        catch (NativeHookException e)
+        {
+          System.err.println("There was a problem registering the native hook.");
+          System.err.println(e.getMessage());
+        }
     this.tesseract = new Tesseract();
     tesseract.setDatapath(
         "C:/Users/niels/IdeaProjects/Scripts/MinecraftMiningScript/tessdata");
@@ -61,15 +62,15 @@ public class AutoFishing
 
   }
 
-  public void enable()
+  public Rectangle getCurrentFishingRegion()
   {
-    isEnabled = true;
+    return currentFishingRegion;
   }
 
-  public void disable()
+  public void setCurrentFishingRegion(Rectangle currentFishingRegion)
   {
-    isEnabled = false;
-    stopFishing();
+    this.currentFishingRegion = currentFishingRegion;
+    System.out.println("Fishing region updated: " + currentFishingRegion);
   }
 
   public void shutdownHook()
@@ -95,7 +96,7 @@ public class AutoFishing
     {
       boolean oldValue = this.isRunning;
       this.isRunning = true;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isRunning", oldValue, this.isRunning);
       this.fishingThread = new Thread(this::runFishing);
       this.fishingThread.setDaemon(true);
       this.fishingThread.start();
@@ -108,7 +109,7 @@ public class AutoFishing
     {
       boolean oldValue = this.isRunning;
       this.isRunning = false;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isRunning", oldValue, this.isRunning);
       if (fishingThread != null && fishingThread.isAlive())
       {
         fishingThread.interrupt();
@@ -118,43 +119,36 @@ public class AutoFishing
 
   private void runFishing() {
     try {
-      // Initial right-click at the start (as per our last modification)
       robot.mousePress(InputEvent.BUTTON3_MASK);
       robot.mouseRelease(InputEvent.BUTTON3_MASK);
       System.out.println("Initial right-click performed.");
       Thread.sleep(500);
 
       while (isRunning) {
-        // 1. Capture the fishing region.
-        BufferedImage screenshot = robot.createScreenCapture(FISHING_REGION);
+        BufferedImage screenshot = robot.createScreenCapture(currentFishingRegion);
 
         File outputfile = new File("saved.png");
         ImageIO.write(screenshot, "png", outputfile);
 
-        // 2. Perform OCR on the captured image.
         String result = "";
         try {
           result = tesseract.doOCR(screenshot);
-          System.out.println("OCR Result: \"" + result.trim() + "\""); // Print the OCR result
+          System.out.println("OCR Result: \"" + result.trim() + "\"");
         } catch (TesseractException e) {
           System.err.println("Tesseract OCR error: " + e.getMessage());
           boolean oldValue = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+          property.firePropertyChange("isRunning", oldValue, this.isRunning);
           break;
         }
 
-        // 3. Check for the fishing subtitle.
         if (result.contains(FISHING_SUBTITLE)) {
           System.out.println("Subtitle detected! Performing actions.");
-          // 4. Right-click.
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
 
-          // 5. Wait for a delay (adjust as needed).
-          Thread.sleep(2000);
+          Thread.sleep(2500);
 
-          // 6. Right-click again.
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
           property.firePropertyChange("fishCaught", false, true);
@@ -165,7 +159,7 @@ public class AutoFishing
       Thread.currentThread().interrupt();
       boolean oldValue = this.isRunning;
       isRunning = false;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isRunning", oldValue, this.isRunning);
       System.err.println("Fishing thread interrupted.");
     } catch (IOException e) {
       isRunning = false;
@@ -180,7 +174,7 @@ public class AutoFishing
 
   @Override public void nativeKeyPressed(NativeKeyEvent e)
   {
-    if (isEnabled && e.getKeyCode() == triggerKeyCode)
+    if (e.getKeyCode() == triggerKeyCode)
     {
       if (isRunning)
       {
