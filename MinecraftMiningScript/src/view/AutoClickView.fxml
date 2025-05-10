@@ -21,7 +21,7 @@
                   </Button>
                </children>
             </HBox>
-            <Label prefHeight="152.0" prefWidth="701.0" text="Autoclick">
+            <Label prefHeight="152.0" prefWidth="701.0" text="Auto Scripts">
                <font>
                   <Font size="46.0" />
                </font>
@@ -34,19 +34,37 @@
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label alignment="CENTER" prefHeight="147.0" prefWidth="361.0" text="Auto grind">
+                        <Label prefHeight="108.0" prefWidth="230.0" text="Grind:">
                            <font>
-                              <Font size="36.0" />
+                              <Font size="45.0" />
                            </font>
+                           <HBox.margin>
+                              <Insets left="30.0" />
+                           </HBox.margin>
                         </Label>
                      </children>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <Label alignment="CENTER" prefHeight="147.0" prefWidth="361.0" text="Auto mine">
+                        <Label prefHeight="108.0" prefWidth="230.0" text="Mine:">
                            <font>
-                              <Font size="36.0" />
+                              <Font size="45.0" />
                            </font>
+                           <HBox.margin>
+                              <Insets left="30.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label prefHeight="108.0" prefWidth="230.0" text="Fish:">
+                           <font>
+                              <Font size="45.0" />
+                           </font>
+                           <HBox.margin>
+                              <Insets left="30.0" />
+                           </HBox.margin>
                         </Label>
                      </children>
                   </HBox>
@@ -54,20 +72,29 @@
             </VBox>
             <VBox prefHeight="323.0" prefWidth="297.0">
                <children>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+                  <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
-                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                           <children>
-                              <Button mnemonicParsing="false" onAction="#autoGrindButton" prefHeight="50.0" prefWidth="180.0" text="Start/Stop (SCRLK)" />
-                           </children>
-                        </HBox>
+                        <Label alignment="CENTER" prefHeight="130.0" prefWidth="196.0" text="CAPS LOCK">
+                           <font>
+                              <Font name="System Bold Italic" size="28.0" />
+                           </font>
+                        </Label>
                      </children>
                   </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" />
                   <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0">
                      <children>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#autoMineButton" prefHeight="50.0" prefWidth="180.0" text="Start/Stop (SCRLK)" />
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <Label alignment="CENTER" prefHeight="130.0" prefWidth="196.0" text="SCRLK">
+                                       <font>
+                                          <Font name="System Bold Italic" size="28.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </HBox>
                            </children>
                         </HBox>
                      </children>
@@ -94,6 +121,7 @@
                         </TextField>
                      </children>
                   </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0" />
                </children>
                <HBox.margin>
                   <Insets right="5.0" />

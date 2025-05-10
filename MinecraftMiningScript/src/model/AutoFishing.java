@@ -22,7 +22,7 @@ public class AutoFishing
     implements NamedPropertyChangeSubject, NativeKeyListener
 {
 
-  private static final String FISHING_SUBTITLE = "Note Block plays";
+  private static final String FISHING_SUBTITLE = "Hote";
   private static final Rectangle FISHING_REGION = new Rectangle(2159, 1187, 400,
       252);
   private boolean isRunning;
@@ -31,6 +31,7 @@ public class AutoFishing
   private ITesseract tesseract;
   private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
   private PropertyChangeSupport property;
+  private boolean isEnabled = false;
 
   public AutoFishing()
   {
@@ -40,24 +41,35 @@ public class AutoFishing
     try
     {
       this.robot = new Robot();
-      GlobalScreen.registerNativeHook();
-      GlobalScreen.addNativeKeyListener(this);
+      //      GlobalScreen.registerNativeHook();
+      //      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot: " + e.getMessage(), e);
     }
-    catch (NativeHookException e)
-    {
-      System.err.println("There was a problem registering the native hook.");
-      System.err.println(e.getMessage());
-    }
+    //    catch (NativeHookException e)
+    //    {
+    //      System.err.println("There was a problem registering the native hook.");
+    //      System.err.println(e.getMessage());
+    //    }
     this.tesseract = new Tesseract();
     tesseract.setDatapath(
         "C:/Users/niels/IdeaProjects/Scripts/MinecraftMiningScript/tessdata");
     tesseract.setLanguage("eng");
 
+  }
+
+  public void enable()
+  {
+    isEnabled = true;
+  }
+
+  public void disable()
+  {
+    isEnabled = false;
+    stopFishing();
   }
 
   public void shutdownHook()
@@ -104,12 +116,15 @@ public class AutoFishing
     }
   }
 
-  private void runFishing()
-  {
-    try
-    {
-      while (isRunning)
-      {
+  private void runFishing() {
+    try {
+      // Initial right-click at the start (as per our last modification)
+      robot.mousePress(InputEvent.BUTTON3_MASK);
+      robot.mouseRelease(InputEvent.BUTTON3_MASK);
+      System.out.println("Initial right-click performed.");
+      Thread.sleep(500);
+
+      while (isRunning) {
         // 1. Capture the fishing region.
         BufferedImage screenshot = robot.createScreenCapture(FISHING_REGION);
 
@@ -118,12 +133,10 @@ public class AutoFishing
 
         // 2. Perform OCR on the captured image.
         String result = "";
-        try
-        {
+        try {
           result = tesseract.doOCR(screenshot);
-        }
-        catch (TesseractException e)
-        {
+          System.out.println("OCR Result: \"" + result.trim() + "\""); // Print the OCR result
+        } catch (TesseractException e) {
           System.err.println("Tesseract OCR error: " + e.getMessage());
           boolean oldValue = this.isRunning;
           isRunning = false;
@@ -132,8 +145,7 @@ public class AutoFishing
         }
 
         // 3. Check for the fishing subtitle.
-        if (result.contains(FISHING_SUBTITLE))
-        {
+        if (result.contains(FISHING_SUBTITLE)) {
           System.out.println("Subtitle detected! Performing actions.");
           // 4. Right-click.
           robot.mousePress(InputEvent.BUTTON3_MASK);
@@ -149,17 +161,13 @@ public class AutoFishing
         }
         Thread.sleep(500);
       }
-    }
-    catch (InterruptedException e)
-    {
+    } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       boolean oldValue = this.isRunning;
       isRunning = false;
       property.firePropertyChange("isRunning", oldValue, this.isRunning);
       System.err.println("Fishing thread interrupted.");
-    }
-    catch (IOException e)
-    {
+    } catch (IOException e) {
       isRunning = false;
       property.firePropertyChange("error", null, e.getMessage());
     }
@@ -172,7 +180,7 @@ public class AutoFishing
 
   @Override public void nativeKeyPressed(NativeKeyEvent e)
   {
-    if (e.getKeyCode() == triggerKeyCode)
+    if (isEnabled && e.getKeyCode() == triggerKeyCode)
     {
       if (isRunning)
       {

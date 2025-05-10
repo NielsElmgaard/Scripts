@@ -34,12 +34,14 @@ public class AutoClickViewController
         this.viewModel.getAutoClickDelayProperty(), new NumberStringConverter());
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
+    viewModel.setAutoClickerViewVisible(true);
 
   }
 
   public void reset()
   {
     viewModel.clear();
+    viewModel.setAutoClickerViewVisible(false);
   }
 
   public Region getRoot()

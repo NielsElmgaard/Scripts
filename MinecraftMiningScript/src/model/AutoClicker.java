@@ -12,14 +12,15 @@ import java.awt.event.InputEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-public class AutoClicker implements NamedPropertyChangeSubject,
-    NativeKeyListener
+public class AutoClicker
+    implements NamedPropertyChangeSubject, NativeKeyListener
 {
   private volatile boolean isRunning = false;
   private Robot robot;
   private int delay;
   private PropertyChangeSupport property;
-  private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
+  private int triggerKeyCode = NativeKeyEvent.VC_CAPS_LOCK;
+  private boolean isEnabled = false;
 
   public AutoClicker(int delay)
   {
@@ -28,25 +29,40 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     try
     {
       this.robot = new Robot();
-      GlobalScreen.registerNativeHook();
-      GlobalScreen.addNativeKeyListener(this);
+      //      GlobalScreen.registerNativeHook();
+      //      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot class: " + e.getMessage(), e);
     }
-    catch (NativeHookException e)
-    {
-      System.err.println("There was a problem registering the native hook.");
-      System.err.println(e.getMessage());
-    }
+    //    catch (NativeHookException e)
+    //    {
+    //      System.err.println("There was a problem registering the native hook.");
+    //      System.err.println(e.getMessage());
+    //    }
   }
 
-  public void shutdownHook() {
-    try {
+  public void enable()
+  {
+    isEnabled = true;
+  }
+
+  public void disable()
+  {
+    isEnabled = false;
+    stopAutoClicker();
+  }
+
+  public void shutdownHook()
+  {
+    try
+    {
       GlobalScreen.unregisterNativeHook();
-    } catch (NativeHookException e) {
+    }
+    catch (NativeHookException e)
+    {
       System.err.println("Failed to unregister native hook: " + e.getMessage());
     }
   }
@@ -139,19 +155,28 @@ public class AutoClicker implements NamedPropertyChangeSubject,
     this.triggerKeyCode = triggerKeyCode;
   }
 
-  @Override
-  public void nativeKeyPressed(NativeKeyEvent e) {
-    if (e.getKeyCode() == triggerKeyCode) {
-      if (isRunning) {
+  @Override public void nativeKeyPressed(NativeKeyEvent e)
+  {
+    if (isEnabled && e.getKeyCode() == triggerKeyCode)
+    {
+      if (isRunning)
+      {
         stopAutoClicker();
-      } else {
+      }
+      else
+      {
         startAutoClicker();
       }
     }
   }
 
-  @Override public void nativeKeyReleased(NativeKeyEvent e) {}
-  @Override public void nativeKeyTyped(NativeKeyEvent e) {}
+  @Override public void nativeKeyReleased(NativeKeyEvent e)
+  {
+  }
+
+  @Override public void nativeKeyTyped(NativeKeyEvent e)
+  {
+  }
 
   @Override public void addListener(String propertyName,
       PropertyChangeListener listener)

@@ -24,11 +24,13 @@ public class AutoFishingViewController
     this.root = root;
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
+    viewModel.setAutoFishingViewVisible(true);
   }
 
   public void reset()
   {
     viewModel.clear();
+    viewModel.setAutoFishingViewVisible(false);
   }
 
   public Region getRoot()

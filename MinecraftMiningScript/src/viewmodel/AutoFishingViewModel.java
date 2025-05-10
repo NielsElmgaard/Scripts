@@ -26,7 +26,7 @@ public class AutoFishingViewModel implements PropertyChangeListener
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
       {
-        model.setTriggerKeyCode(newValue.intValue());
+        model.setTriggerKeyCodeForAutoFishing(newValue.intValue());
       }
     });
 
@@ -66,6 +66,11 @@ public class AutoFishingViewModel implements PropertyChangeListener
   public BooleanProperty autoFishRunningProperty()
   {
     return autoFishRunning;
+  }
+
+
+  public void setAutoFishingViewVisible(boolean visible) {
+    model.setAutoFishingViewVisible(visible);
   }
 
   @Override public void propertyChange(PropertyChangeEvent evt)
