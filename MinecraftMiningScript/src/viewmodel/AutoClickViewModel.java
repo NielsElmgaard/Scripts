@@ -22,7 +22,7 @@ public class AutoClickViewModel implements PropertyChangeListener
   {
     this.model = model;
     this.autoClickDelay = new SimpleIntegerProperty(model.getDelay());
-    this.autoClickRunning = new SimpleBooleanProperty(model.isRunning());
+    this.autoClickRunning = new SimpleBooleanProperty(model.isAutoGrindRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
         NativeKeyEvent.VC_CAPS_LOCK);
 
@@ -88,9 +88,6 @@ public class AutoClickViewModel implements PropertyChangeListener
     return triggerKeyCode;
   }
 
-  public void setAutoClickerViewVisible(boolean visible) {
-    model.setAutoClickerViewVisible(visible);
-  }
 
   @Override public void propertyChange(PropertyChangeEvent evt)
   {

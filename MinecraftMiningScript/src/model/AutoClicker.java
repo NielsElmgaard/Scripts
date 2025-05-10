@@ -84,12 +84,13 @@ public class AutoClicker
     property.firePropertyChange("delay", oldValue, this.delay);
   }
 
-  private void performClick()
+  private void performClick() throws InterruptedException
   {
     if (robot != null && isRunning)
     {
       System.out.println("Clicked!");
       System.out.println(isRunning);
+      Thread.sleep(500);
       robot.mousePress(InputEvent.BUTTON1_MASK);
       System.out.println("Released!");
       System.out.println(isRunning);
@@ -105,7 +106,7 @@ public class AutoClicker
     {
       boolean oldValue = this.isRunning;
       isRunning = true;
-      property.firePropertyChange("isRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
       Thread clickerThread = new Thread(() -> {
         try
         {
@@ -121,14 +122,14 @@ public class AutoClicker
           Thread.currentThread().interrupt();
           boolean oldValueInterrupt = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isRunning", oldValueInterrupt,
+          property.firePropertyChange("isAutoGrindRunning", oldValueInterrupt,
               this.isRunning);
         }
         catch (Exception e)
         {
           boolean oldValueException = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isRunning", oldValueException,
+          property.firePropertyChange("isAutoGrindRunning", oldValueException,
               this.isRunning);
           throw new RuntimeException(
               "Error during autoClicking: " + e.getMessage());
@@ -145,7 +146,7 @@ public class AutoClicker
     {
       boolean oldValue = this.isRunning;
       isRunning = false;
-      property.firePropertyChange("isRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
       System.out.println("Stopped! ");
     }
   }
