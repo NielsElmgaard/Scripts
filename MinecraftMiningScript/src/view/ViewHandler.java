@@ -13,6 +13,7 @@ public class ViewHandler
   private Scene currentScene;
   private MinecraftMiningScriptsViewController minecraftMiningScriptsViewController;
   private AutoClickViewController autoclickViewController;
+  private AutoFishingViewController autoFishingViewController;
 
   public ViewHandler(ViewModelFactory viewModelFactory)
   {
@@ -36,6 +37,9 @@ public class ViewHandler
         break;
       case "autoclick":
         root = loadAutoclickView("AutoClickView.fxml");
+        break;
+      case "autofishing":
+        root = loadAutoFishingView("AutoFishingView.fxml");
         break;
     }
     currentScene.setRoot(root);
@@ -101,5 +105,31 @@ public class ViewHandler
     }
     return autoclickViewController.getRoot();
   }
+
+  private Region loadAutoFishingView(String fxmlFile)
+  {
+    if (autoFishingViewController == null)
+    {
+      try
+      {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(fxmlFile));
+        Region root = loader.load();
+        autoFishingViewController = loader.getController();
+        autoFishingViewController
+            .init(this, viewModelFactory.getAutoFishingViewModel(), root);
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
+    else
+    {
+      autoFishingViewController.reset();
+    }
+    return autoFishingViewController.getRoot();
+  }
+
 
 }
