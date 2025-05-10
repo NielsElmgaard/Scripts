@@ -11,4 +11,9 @@ public interface Model extends NamedPropertyChangeSubject
   void startAutoClicker();
   void stopAutoClicker();
   void setTriggerKeyCode(int keyCode);
+
+  // Auto Fishing
+
+  void startFishing();
+  void stopFishing();
 }
