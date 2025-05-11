@@ -1,9 +1,12 @@
 package view;
 
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
+import javafx.util.converter.NumberStringConverter;
 import model.AutoMine;
 import viewmodel.AutoMineViewModel;
 
@@ -17,6 +20,7 @@ public class AutoMineViewController
   @FXML private Label errorLabel;
   @FXML private RadioButton defaultRegionRadio;
   @FXML private RadioButton p1080RegionRadio;
+  @FXML private TextField turnAmount;
 
   public AutoMineViewController()
   {
@@ -29,6 +33,9 @@ public class AutoMineViewController
     this.viewHandler = viewHandler;
     this.viewModel = viewModel;
     this.root = root;
+
+    Bindings.bindBidirectional(turnAmount.textProperty(),
+        this.viewModel.turnAmountProperty(), new NumberStringConverter());
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
 
@@ -43,14 +50,8 @@ public class AutoMineViewController
     }
     defaultRegionRadio.setOnAction(event -> viewModel.setDefaultRegion());
     p1080RegionRadio.setOnAction(event -> viewModel.set1080pRegion());
-    System.out.println(
-        "Mining key active in init? " + viewModel.isViewActiveProperty());
 
     viewModel.setViewActive(true);
-
-    System.out.println(
-        "Mining key active in init? " + viewModel.isViewActiveProperty());
-
   }
 
   public void reset()
@@ -70,11 +71,7 @@ public class AutoMineViewController
 
   @FXML private void backButton()
   {
-    System.out.println(
-        "Mining key active in back? " + viewModel.isViewActiveProperty());
     viewModel.setViewActive(false);
-    System.out.println(
-        "Mining key active in back? " + viewModel.isViewActiveProperty());
     viewHandler.openView("scripts");
   }
 

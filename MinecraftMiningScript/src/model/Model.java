@@ -29,6 +29,8 @@ public interface Model extends NamedPropertyChangeSubject
   void setAutoFishingViewActive(boolean isActive) throws NativeHookException;
 
   // Auto Mining
+  int getTurnAmount();
+  void setTurnAmount(int turnAmount);
   boolean isAutoMiningRunning();
   void setTriggerKeyCodeForAutoMining(int keyCode);
   void startMining();

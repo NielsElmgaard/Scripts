@@ -14,6 +14,7 @@ import java.beans.PropertyChangeListener;
 public class AutoMineViewModel implements PropertyChangeListener
 {
   private Model model;
+  private IntegerProperty turnAmount;
   private StringProperty errorMessage;
   private BooleanProperty autoMineRunning;
   private IntegerProperty triggerKeyCode;
@@ -23,6 +24,7 @@ public class AutoMineViewModel implements PropertyChangeListener
   public AutoMineViewModel(Model model)
   {
     this.model = model;
+    this.turnAmount = new SimpleIntegerProperty(model.getTurnAmount());
     this.autoMineRunning = new SimpleBooleanProperty(
         model.isAutoMiningRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
@@ -30,9 +32,21 @@ public class AutoMineViewModel implements PropertyChangeListener
     this.currentMiningRegion = new SimpleObjectProperty<>(
         model.getCurrentMiningRegion());
 
-    this.isViewActive=new SimpleBooleanProperty(false);
+    this.isViewActive = new SimpleBooleanProperty(false);
     this.errorMessage = new SimpleStringProperty(
         "Running: " + autoMineRunning.get());
+
+    this.turnAmount.addListener((observable, oldValue, newValue) -> {
+      if (newValue != null && newValue.intValue() >= 0)
+      {
+        model.setTurnAmount(newValue.intValue());
+      }
+      else
+      {
+        errorMessage.set("Invalid turn value.");
+        turnAmount.set(oldValue.intValue());
+      }
+    });
 
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
@@ -48,7 +62,8 @@ public class AutoMineViewModel implements PropertyChangeListener
       }
       catch (NativeHookException e)
       {
-        System.err.println("Error unregistering AutoMining key listener: " + e.getMessage());
+        System.err.println(
+            "Error unregistering AutoMining key listener: " + e.getMessage());
       }
     });
 
@@ -56,13 +71,16 @@ public class AutoMineViewModel implements PropertyChangeListener
     model.addListener("miningWall", this);
     model.addListener("error", this);
     model.addListener("miningRegionChanged", this);
+    model.addListener("turnAmount", this);
   }
 
-  public BooleanProperty isViewActiveProperty() {
+  public BooleanProperty isViewActiveProperty()
+  {
     return isViewActive;
   }
 
-  public void setViewActive(boolean active) {
+  public void setViewActive(boolean active)
+  {
     isViewActive.set(active);
   }
 
@@ -71,6 +89,7 @@ public class AutoMineViewModel implements PropertyChangeListener
     errorMessage.set("");
     autoMineRunning.set(false);
     setViewActive(true);
+    turnAmount.set(model.getTurnAmount());
   }
 
   public void toggleAutoMining()
@@ -100,15 +119,23 @@ public class AutoMineViewModel implements PropertyChangeListener
     return autoMineRunning;
   }
 
-  public ObjectProperty<Rectangle> currentMiningRegionProperty() {
+  public ObjectProperty<Rectangle> currentMiningRegionProperty()
+  {
     return currentMiningRegion;
   }
 
-  public void setDefaultRegion() {
+  public IntegerProperty turnAmountProperty()
+  {
+    return turnAmount;
+  }
+
+  public void setDefaultRegion()
+  {
     model.setMiningRegion(AutoMine.MINING_REGION_DEFAULT);
   }
 
-  public void set1080pRegion() {
+  public void set1080pRegion()
+  {
     model.setMiningRegion(AutoMine.MINING_REGION_1080P);
   }
 
@@ -136,6 +163,11 @@ public class AutoMineViewModel implements PropertyChangeListener
       case "miningRegionChanged":
         Platform.runLater(() -> {
           currentMiningRegion.set((Rectangle) evt.getNewValue());
+        });
+        break;
+      case "turnAmount":
+        Platform.runLater(() -> {
+          turnAmount.set((Integer) evt.getNewValue());
         });
         break;
     }

@@ -33,11 +33,9 @@ public class AutoClickViewController
         this.viewModel.getAutoClickDelayProperty(), new NumberStringConverter());
 
     autoErrorLabel.textProperty().bind(viewModel.errorMessageProperty());
-    System.out.println("Clicking key active in init? "+viewModel.isViewActiveProperty());
 
     viewModel.setViewActive(true);
 
-    System.out.println("Clicking key active in init? "+viewModel.isViewActiveProperty());
   }
 
   public void reset()
@@ -57,9 +55,7 @@ public class AutoClickViewController
 
   @FXML private void backButton()
   {
-    System.out.println("Clicking key active in back? "+viewModel.isViewActiveProperty());
     viewModel.setViewActive(false);
-    System.out.println("Clicking key active in back? "+viewModel.isViewActiveProperty());
     viewHandler.openView("scripts");
   }
 }
