@@ -35,7 +35,10 @@ public class MinecraftMiningScriptsViewController
 
   @FXML private void autoclickButton()
   {
-    viewHandler.openView("autoscript");
+    viewHandler.openView("autoclick");
   }
 
+  @FXML private void autoFishingButton(){
+    viewHandler.openView("autofishing");
+  }
 }

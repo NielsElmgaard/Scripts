@@ -23,15 +23,20 @@ public class AutoFishing
 {
 
   private static final String FISHING_SUBTITLE = "Hote";
-  private static final Rectangle FISHING_REGION = new Rectangle(2159, 1187, 400,
-      252);
+  public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159,
+      1187, 400, 252);
+  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1520, 828,
+      400, 252);
+  private Rectangle currentFishingRegion = FISHING_REGION_DEFAULT;
+
   private boolean isRunning;
   private Robot robot;
   private Thread fishingThread;
   private ITesseract tesseract;
   private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
   private PropertyChangeSupport property;
-  private boolean isEnabled = false;
+  private boolean isListenerActive = false;
+
 
   public AutoFishing()
   {
@@ -41,19 +46,12 @@ public class AutoFishing
     try
     {
       this.robot = new Robot();
-      //      GlobalScreen.registerNativeHook();
-      //      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot: " + e.getMessage(), e);
     }
-    //    catch (NativeHookException e)
-    //    {
-    //      System.err.println("There was a problem registering the native hook.");
-    //      System.err.println(e.getMessage());
-    //    }
     this.tesseract = new Tesseract();
     tesseract.setDatapath(
         "C:/Users/niels/IdeaProjects/Scripts/MinecraftMiningScript/tessdata");
@@ -61,28 +59,47 @@ public class AutoFishing
 
   }
 
-  public void enable()
+  public Rectangle getCurrentFishingRegion()
   {
-    isEnabled = true;
+    return currentFishingRegion;
   }
 
-  public void disable()
+  public void setCurrentFishingRegion(Rectangle currentFishingRegion)
   {
-    isEnabled = false;
-    stopFishing();
+    Rectangle oldValue = this.currentFishingRegion;
+    this.currentFishingRegion = currentFishingRegion;
+    property.firePropertyChange("fishingRegionChanged", oldValue,
+        this.currentFishingRegion);
+    System.out.println("Fishing region updated: " + currentFishingRegion);
   }
 
-  public void shutdownHook()
+  public void registerKeyListener()
   {
-    try
+    if (!isListenerActive)
     {
-      GlobalScreen.unregisterNativeHook();
-    }
-    catch (NativeHookException e)
-    {
-      System.err.println("Failed to unregister native hook: " + e.getMessage());
+      try
+      {
+        GlobalScreen.addNativeKeyListener(this);
+        isListenerActive = true;
+        System.out.println("AutoFishing key listener registered.");
+      }
+      catch (Exception e)
+      {
+        System.err.println("Error registering AutoFishing key listener: " + e.getMessage());
+      }
     }
   }
+
+  public void unregisterKeyListener() throws NativeHookException
+  {
+    if (isListenerActive)
+    {
+      GlobalScreen.removeNativeKeyListener(this);
+      isListenerActive = false;
+      System.out.println("AutoFishing key listener unregistered.");
+    }
+  }
+
 
   public boolean isRunning()
   {
@@ -116,61 +133,72 @@ public class AutoFishing
     }
   }
 
-  private void runFishing() {
-    try {
-      // Initial right-click at the start (as per our last modification)
+  private void runFishing()
+  {
+    try
+    {
       robot.mousePress(InputEvent.BUTTON3_MASK);
       robot.mouseRelease(InputEvent.BUTTON3_MASK);
       System.out.println("Initial right-click performed.");
       Thread.sleep(500);
 
-      while (isRunning) {
-        // 1. Capture the fishing region.
-        BufferedImage screenshot = robot.createScreenCapture(FISHING_REGION);
+      while (isRunning)
+      {
+        BufferedImage screenshot = robot.createScreenCapture(
+            currentFishingRegion);
 
         File outputfile = new File("saved.png");
         ImageIO.write(screenshot, "png", outputfile);
 
-        // 2. Perform OCR on the captured image.
         String result = "";
-        try {
+        try
+        {
           result = tesseract.doOCR(screenshot);
-          System.out.println("OCR Result: \"" + result.trim() + "\""); // Print the OCR result
-        } catch (TesseractException e) {
+          System.out.println("OCR Result: \"" + result.trim() + "\"");
+        }
+        catch (TesseractException e)
+        {
           System.err.println("Tesseract OCR error: " + e.getMessage());
           boolean oldValue = this.isRunning;
           isRunning = false;
           property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
           break;
         }
-
-        // 3. Check for the fishing subtitle.
-        if (result.contains(FISHING_SUBTITLE)) {
-          System.out.println("Subtitle detected! Performing actions.");
-          // 4. Right-click.
+        if (result.contains(FISHING_SUBTITLE))
+        {
+          System.out.println("Fish detected! Performing actions.");
+          Thread.sleep(randomDelay(200, 500));
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
 
-          // 5. Wait for a delay (adjust as needed).
-          Thread.sleep(2000);
-
-          // 6. Right-click again.
+          Thread.sleep(randomDelay(2600, 3000));
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
           property.firePropertyChange("fishCaught", false, true);
         }
-        Thread.sleep(500);
+        Thread.sleep(randomDelay(300, 600));
       }
-    } catch (InterruptedException e) {
+    }
+    catch (InterruptedException e)
+    {
       Thread.currentThread().interrupt();
       boolean oldValue = this.isRunning;
       isRunning = false;
       property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
       System.err.println("Fishing thread interrupted.");
-    } catch (IOException e) {
+    }
+    catch (IOException e)
+    {
       isRunning = false;
       property.firePropertyChange("error", null, e.getMessage());
     }
+  }
+
+  private int randomDelay(int minDelay, int maxDelay)
+  {
+    int min = Math.min(minDelay, maxDelay);
+    int max = Math.max(minDelay, maxDelay);
+    return (int) (min + (Math.random() * (max - min)));
   }
 
   public void setTriggerKeyCode(int triggerKeyCode)
@@ -180,7 +208,7 @@ public class AutoFishing
 
   @Override public void nativeKeyPressed(NativeKeyEvent e)
   {
-    if (isEnabled && e.getKeyCode() == triggerKeyCode)
+    if (e.getKeyCode() == triggerKeyCode)
     {
       if (isRunning)
       {
