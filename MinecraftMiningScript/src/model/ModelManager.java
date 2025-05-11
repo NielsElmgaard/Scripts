@@ -12,15 +12,18 @@ public class ModelManager implements Model
 {
   private AutoClicker autoClicker;
   private AutoFishing autoFishing;
+  private AutoMine autoMine;
   private PropertyChangeSupport property;
   private boolean isAutoFishingViewActive = false;
   private boolean isAutoGrinderViewActive = false;
+  private boolean isAutoMiningViewActive = false;
   private boolean isGlobalHookRegistered = false;
 
   public ModelManager()
   {
     this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
+    this.autoMine = new AutoMine();
     this.property = new PropertyChangeSupport(this);
 
     autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
@@ -32,6 +35,13 @@ public class ModelManager implements Model
     autoFishing.addListener("fishCaught",
         evt -> property.firePropertyChange(evt));
     autoFishing.addListener("error", evt -> property.firePropertyChange(evt));
+
+    autoMine.addListener("isAutoMiningRunning",
+        evt -> property.firePropertyChange(evt));
+    autoMine.addListener("miningWall", evt -> property.firePropertyChange(evt));
+    autoMine.addListener("error", evt -> property.firePropertyChange(evt));
+    autoMine.addListener("miningRegionChanged",
+        evt -> property.firePropertyChange(evt));
 
     try
     {
@@ -65,6 +75,60 @@ public class ModelManager implements Model
     }
   }
 
+  @Override public boolean isAutoMiningRunning()
+  {
+    return autoMine.isRunning();
+  }
+
+  @Override public void setTriggerKeyCodeForAutoMining(int keyCode)
+  {
+    autoMine.setTriggerKeyCode(keyCode);
+  }
+
+  @Override public void startMining()
+  {
+    autoMine.startMining();
+  }
+
+  @Override public void stopMining()
+  {
+    autoMine.stopMining();
+  }
+
+  @Override public NativeKeyListener getAutoMining()
+  {
+    return autoMine;
+  }
+
+  @Override public Rectangle getCurrentMiningRegion()
+  {
+    return autoMine.getCurrentMiningRegion();
+  }
+
+  @Override public void setMiningRegion(Rectangle region)
+  {
+    autoMine.setCurrentMiningRegion(region);
+  }
+
+  @Override public void setAutoMiningViewActive(boolean isActive)
+      throws NativeHookException
+  {
+    if (isActive)
+    {
+      autoMine.registerKeyListener();
+      isAutoMiningViewActive = true;
+      System.out.println(
+          "AutoMining key listener registered (via AutoMine method).");
+    }
+    else
+    {
+      autoMine.unregisterKeyListener();
+      isAutoMiningViewActive = false;
+      System.out.println(
+          "AutoMining key listener unregistered (via AutoMine method).");
+    }
+  }
+
   @Override public void setAutoGrinderViewActive(boolean isActive)
       throws NativeHookException
   {
@@ -87,7 +151,8 @@ public class ModelManager implements Model
   private void manageGlobalHook()
   {
     boolean shouldBeRegistered =
-        isAutoFishingViewActive || isAutoGrinderViewActive;
+        isAutoFishingViewActive || isAutoGrinderViewActive
+            || isAutoMiningViewActive;
     if (shouldBeRegistered && !isGlobalHookRegistered)
     {
       try

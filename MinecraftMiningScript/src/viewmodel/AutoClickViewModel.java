@@ -75,7 +75,7 @@ public class AutoClickViewModel implements PropertyChangeListener
 
   public void clear()
   {
-    autoClickDelay.set(0);
+    autoClickDelay.set(model.getDelay());
     errorMessage.set("");
     autoClickRunning.set(false);
     setViewActive(true);

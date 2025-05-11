@@ -4,58 +4,58 @@ import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import model.AutoFishing;
+import model.AutoMine;
 import model.Model;
 
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-public class AutoFishingViewModel implements PropertyChangeListener
+public class AutoMineViewModel implements PropertyChangeListener
 {
   private Model model;
   private StringProperty errorMessage;
-  private BooleanProperty autoFishRunning;
+  private BooleanProperty autoMineRunning;
   private IntegerProperty triggerKeyCode;
-  private ObjectProperty<Rectangle> currentFishingRegion;
+  private ObjectProperty<Rectangle> currentMiningRegion;
   private BooleanProperty isViewActive;
 
-  public AutoFishingViewModel(Model model)
+  public AutoMineViewModel(Model model)
   {
     this.model = model;
-    this.autoFishRunning = new SimpleBooleanProperty(
-        model.isAutoFishingRunning());
+    this.autoMineRunning = new SimpleBooleanProperty(
+        model.isAutoMiningRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
         NativeKeyEvent.VC_CAPS_LOCK);
-    this.currentFishingRegion = new SimpleObjectProperty<>(
-        model.getCurrentFishingRegion());
+    this.currentMiningRegion = new SimpleObjectProperty<>(
+        model.getCurrentMiningRegion());
 
     this.isViewActive=new SimpleBooleanProperty(false);
     this.errorMessage = new SimpleStringProperty(
-        "Running: " + autoFishRunning.get());
+        "Running: " + autoMineRunning.get());
 
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
       {
-        model.setTriggerKeyCodeForAutoFishing(newValue.intValue());
+        model.setTriggerKeyCodeForAutoMining(newValue.intValue());
       }
     });
 
     isViewActive.addListener((observable, oldValue, newValue) -> {
       try
       {
-        model.setAutoFishingViewActive(newValue);
+        model.setAutoMiningViewActive(newValue);
       }
       catch (NativeHookException e)
       {
-        System.err.println("Error unregistering AutoFishing key listener: " + e.getMessage());
+        System.err.println("Error unregistering AutoMining key listener: " + e.getMessage());
       }
     });
 
-    model.addListener("isAutoFishingRunning", this);
-    model.addListener("fishCaught", this);
+    model.addListener("isAutoMiningRunning", this);
+    model.addListener("miningWall", this);
     model.addListener("error", this);
-    model.addListener("fishingRegionChanged", this);
+    model.addListener("miningRegionChanged", this);
   }
 
   public BooleanProperty isViewActiveProperty() {
@@ -69,19 +69,19 @@ public class AutoFishingViewModel implements PropertyChangeListener
   public void clear()
   {
     errorMessage.set("");
-    autoFishRunning.set(false);
+    autoMineRunning.set(false);
     setViewActive(true);
   }
 
-  public void toggleAutoFishing()
+  public void toggleAutoMining()
   {
-    if (autoFishRunning.get())
+    if (autoMineRunning.get())
     {
-      model.stopFishing();
+      model.stopMining();
     }
     else
     {
-      model.startFishing();
+      model.startMining();
     }
   }
 
@@ -95,21 +95,21 @@ public class AutoFishingViewModel implements PropertyChangeListener
     return errorMessage;
   }
 
-  public BooleanProperty autoFishRunningProperty()
+  public BooleanProperty autoMiningRunningProperty()
   {
-    return autoFishRunning;
+    return autoMineRunning;
   }
 
-  public ObjectProperty<Rectangle> currentFishingRegionProperty() {
-    return currentFishingRegion;
+  public ObjectProperty<Rectangle> currentMiningRegionProperty() {
+    return currentMiningRegion;
   }
 
   public void setDefaultRegion() {
-    model.setFishingRegion(AutoFishing.FISHING_REGION_DEFAULT);
+    model.setMiningRegion(AutoMine.MINING_REGION_DEFAULT);
   }
 
   public void set1080pRegion() {
-    model.setFishingRegion(AutoFishing.FISHING_REGION_1080P);
+    model.setMiningRegion(AutoMine.MINING_REGION_1080P);
   }
 
   @Override public void propertyChange(PropertyChangeEvent evt)
@@ -117,15 +117,15 @@ public class AutoFishingViewModel implements PropertyChangeListener
     switch (evt.getPropertyName())
     {
 
-      case "isAutoFishingRunning":
+      case "isAutoMiningRunning":
         Platform.runLater(() -> {
-          autoFishRunning.set((Boolean) evt.getNewValue());
-          errorMessage.set("Running: " + autoFishRunning.get());
+          autoMineRunning.set((Boolean) evt.getNewValue());
+          errorMessage.set("Running: " + autoMineRunning.get());
         });
         break;
-      case "fishCaught":
+      case "miningWall":
         Platform.runLater(() -> {
-          errorMessage.set("Fish caught!");
+          errorMessage.set("wall hit!");
         });
         break;
       case "error":
@@ -133,9 +133,9 @@ public class AutoFishingViewModel implements PropertyChangeListener
           errorMessage.set("Error: " + evt.getNewValue());
         });
         break;
-      case "fishingRegionChanged":
+      case "miningRegionChanged":
         Platform.runLater(() -> {
-          currentFishingRegion.set((Rectangle) evt.getNewValue());
+          currentMiningRegion.set((Rectangle) evt.getNewValue());
         });
         break;
     }
