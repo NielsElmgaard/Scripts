@@ -1,7 +1,10 @@
 package model;
 
+import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import utility.observer.javaobserver.NamedPropertyChangeSubject;
+
+import java.awt.*;
 
 public interface Model extends NamedPropertyChangeSubject
 {
@@ -13,6 +16,7 @@ public interface Model extends NamedPropertyChangeSubject
   void stopAutoClicker();
   void setTriggerKeyCodeForAutoClicking(int keyCode);
   NativeKeyListener getAutoClicker();
+  void setAutoGrinderViewActive(boolean isActive) throws NativeHookException;
 
   // Auto Fishing
   boolean isAutoFishingRunning();
@@ -20,4 +24,7 @@ public interface Model extends NamedPropertyChangeSubject
   void startFishing();
   void stopFishing();
   NativeKeyListener getAutoFishing();
+  Rectangle getCurrentFishingRegion();
+  void setFishingRegion(Rectangle region);
+  void setAutoFishingViewActive(boolean isActive) throws NativeHookException;
 }

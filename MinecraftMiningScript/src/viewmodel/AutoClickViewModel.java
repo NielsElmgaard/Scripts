@@ -17,6 +17,7 @@ public class AutoClickViewModel implements PropertyChangeListener
   private StringProperty errorMessage;
   private BooleanProperty autoClickRunning;
   private IntegerProperty triggerKeyCode;
+  private BooleanProperty isViewActive;
 
   public AutoClickViewModel(Model model)
   {
@@ -27,6 +28,9 @@ public class AutoClickViewModel implements PropertyChangeListener
         NativeKeyEvent.VC_CAPS_LOCK);
 
     this.errorMessage = new SimpleStringProperty("");
+    this.isViewActive=new SimpleBooleanProperty(false);
+
+
     this.autoClickDelay.addListener((observable, oldValue, newValue) -> {
       if (newValue != null && newValue.intValue() >= 0)
       {
@@ -46,8 +50,27 @@ public class AutoClickViewModel implements PropertyChangeListener
       }
     });
 
+    isViewActive.addListener((observable, oldValue, newValue) -> {
+      try
+      {
+        model.setAutoGrinderViewActive(newValue);
+      }
+      catch (NativeHookException e)
+      {
+        System.err.println("Error unregistering AutoGrinding key listener: " + e.getMessage());
+      }
+    });
+
     model.addListener("delay", this);
-    model.addListener("isRunning", this);
+    model.addListener("isAutoGrindRunning", this);
+  }
+
+  public BooleanProperty isViewActiveProperty() {
+    return isViewActive;
+  }
+
+  public void setViewActive(boolean active) {
+    isViewActive.set(active);
   }
 
   public void clear()
@@ -55,6 +78,7 @@ public class AutoClickViewModel implements PropertyChangeListener
     autoClickDelay.set(0);
     errorMessage.set("");
     autoClickRunning.set(false);
+    setViewActive(true);
   }
 
   public void toggleAutoClicker()
@@ -96,7 +120,7 @@ public class AutoClickViewModel implements PropertyChangeListener
       case "delay":
         autoClickDelay.set((Integer) evt.getNewValue());
         break;
-      case "isRunning":
+      case "isAutoGrindRunning":
         autoClickRunning.set((Boolean) evt.getNewValue());
         break;
     }

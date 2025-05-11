@@ -37,7 +37,7 @@ public class ViewHandler
         root = loadMinecraftMiningScriptsView("MinecraftMiningScriptsView.fxml");
         break;
       case "autoclick":
-        root = loadAutoclickView("AutoScriptView.fxml");
+        root = loadAutoclickView("AutoGrindView.fxml");
         break;
       case "autofishing":
         root = loadAutoFishingView("AutoFishingView.fxml");

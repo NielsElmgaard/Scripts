@@ -16,8 +16,7 @@ public class AutoClickViewController
   private ViewHandler viewHandler;
 
   @FXML private TextField msAutoGrind;
-  @FXML private TextField msAutoMine;
-  @FXML private Label errorLabel;
+  @FXML private Label autoErrorLabel;
 
   public AutoClickViewController()
   {
@@ -33,8 +32,12 @@ public class AutoClickViewController
     Bindings.bindBidirectional(msAutoGrind.textProperty(),
         this.viewModel.getAutoClickDelayProperty(), new NumberStringConverter());
 
-    errorLabel.textProperty().bind(viewModel.errorMessageProperty());
+    autoErrorLabel.textProperty().bind(viewModel.errorMessageProperty());
+    System.out.println("Clicking key active in init? "+viewModel.isViewActiveProperty());
 
+    viewModel.setViewActive(true);
+
+    System.out.println("Clicking key active in init? "+viewModel.isViewActiveProperty());
   }
 
   public void reset()
@@ -47,18 +50,16 @@ public class AutoClickViewController
     return root;
   }
 
-  @FXML private void autoGrindButton()
+  @FXML private void toggleAutoClick()
   {
     viewModel.toggleAutoClicker();
   }
 
-  @FXML private void autoMineButton()
-  {
-    // TO-DO
-  }
-
   @FXML private void backButton()
   {
+    System.out.println("Clicking key active in back? "+viewModel.isViewActiveProperty());
+    viewModel.setViewActive(false);
+    System.out.println("Clicking key active in back? "+viewModel.isViewActiveProperty());
     viewHandler.openView("scripts");
   }
 }

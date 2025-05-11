@@ -20,7 +20,7 @@ public class AutoClicker
   private int delay;
   private PropertyChangeSupport property;
   private int triggerKeyCode = NativeKeyEvent.VC_CAPS_LOCK;
-  private boolean isEnabled = false;
+  private boolean isListenerActive = false;
 
   public AutoClicker(int delay)
   {
@@ -29,42 +29,38 @@ public class AutoClicker
     try
     {
       this.robot = new Robot();
-      //      GlobalScreen.registerNativeHook();
-      //      GlobalScreen.addNativeKeyListener(this);
     }
     catch (AWTException e)
     {
       throw new RuntimeException(
           "Failed to initialize Robot class: " + e.getMessage(), e);
     }
-    //    catch (NativeHookException e)
-    //    {
-    //      System.err.println("There was a problem registering the native hook.");
-    //      System.err.println(e.getMessage());
-    //    }
   }
 
-  public void enable()
+  public void registerKeyListener()
   {
-    isEnabled = true;
-  }
-
-  public void disable()
-  {
-    isEnabled = false;
-    stopAutoClicker();
-  }
-
-  public void shutdownHook()
-  {
-    try
+    if (!isListenerActive)
     {
-      GlobalScreen.unregisterNativeHook();
+      try
+      {
+        GlobalScreen.addNativeKeyListener(this);
+        isListenerActive = true;
+        System.out.println("AutoClicker key listener registered.");
+      }
+      catch (Exception e)
+      {
+        System.err.println("Error registering AutoClicker key listener: " + e.getMessage());
+      }
     }
-    catch (NativeHookException e)
+  }
+
+  public void unregisterKeyListener() throws NativeHookException
+  {
+    if (isListenerActive)
     {
-      System.err.println("Failed to unregister native hook: " + e.getMessage());
-    }
+      GlobalScreen.removeNativeKeyListener(this);
+      isListenerActive = false;
+      System.out.println("AutoClicker key listener unregistered.");    }
   }
 
   public int getDelay()
@@ -106,7 +102,8 @@ public class AutoClicker
     {
       boolean oldValue = this.isRunning;
       isRunning = true;
-      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue,
+          this.isRunning);
       Thread clickerThread = new Thread(() -> {
         try
         {
@@ -146,7 +143,8 @@ public class AutoClicker
     {
       boolean oldValue = this.isRunning;
       isRunning = false;
-      property.firePropertyChange("isAutoGrindRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoGrindRunning", oldValue,
+          this.isRunning);
       System.out.println("Stopped! ");
     }
   }
@@ -158,7 +156,7 @@ public class AutoClicker
 
   @Override public void nativeKeyPressed(NativeKeyEvent e)
   {
-    if (isEnabled && e.getKeyCode() == triggerKeyCode)
+    if (e.getKeyCode() == triggerKeyCode)
     {
       if (isRunning)
       {

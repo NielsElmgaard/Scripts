@@ -1,9 +1,13 @@
 package viewmodel;
 
+import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import javafx.application.Platform;
 import javafx.beans.property.*;
+import model.AutoFishing;
 import model.Model;
 
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -13,15 +17,22 @@ public class AutoFishingViewModel implements PropertyChangeListener
   private StringProperty errorMessage;
   private BooleanProperty autoFishRunning;
   private IntegerProperty triggerKeyCode;
+  private ObjectProperty<Rectangle> currentFishingRegion;
+  private BooleanProperty isViewActive;
 
   public AutoFishingViewModel(Model model)
   {
     this.model = model;
-    this.autoFishRunning = new SimpleBooleanProperty(model.isAutoGrindRunning());
+    this.autoFishRunning = new SimpleBooleanProperty(
+        model.isAutoFishingRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
         NativeKeyEvent.VC_SCROLL_LOCK);
+    this.currentFishingRegion = new SimpleObjectProperty<>(
+        model.getCurrentFishingRegion());
 
-    this.errorMessage = new SimpleStringProperty("");
+    this.isViewActive=new SimpleBooleanProperty(false);
+    this.errorMessage = new SimpleStringProperty(
+        "Running: " + autoFishRunning.get());
 
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
@@ -30,15 +41,36 @@ public class AutoFishingViewModel implements PropertyChangeListener
       }
     });
 
-    model.addListener("isRunning", this);
+    isViewActive.addListener((observable, oldValue, newValue) -> {
+      try
+      {
+        model.setAutoFishingViewActive(newValue);
+      }
+      catch (NativeHookException e)
+      {
+        System.err.println("Error unregistering AutoFishing key listener: " + e.getMessage());
+      }
+    });
+
+    model.addListener("isAutoFishingRunning", this);
     model.addListener("fishCaught", this);
     model.addListener("error", this);
+    model.addListener("fishingRegionChanged", this);
+  }
+
+  public BooleanProperty isViewActiveProperty() {
+    return isViewActive;
+  }
+
+  public void setViewActive(boolean active) {
+    isViewActive.set(active);
   }
 
   public void clear()
   {
     errorMessage.set("");
     autoFishRunning.set(false);
+    setViewActive(true);
   }
 
   public void toggleAutoFishing()
@@ -68,20 +100,43 @@ public class AutoFishingViewModel implements PropertyChangeListener
     return autoFishRunning;
   }
 
+  public ObjectProperty<Rectangle> currentFishingRegionProperty() {
+    return currentFishingRegion;
+  }
+
+  public void setDefaultRegion() {
+    model.setFishingRegion(AutoFishing.FISHING_REGION_DEFAULT);
+  }
+
+  public void set1080pRegion() {
+    model.setFishingRegion(AutoFishing.FISHING_REGION_1080P);
+  }
 
   @Override public void propertyChange(PropertyChangeEvent evt)
   {
     switch (evt.getPropertyName())
     {
 
-      case "isRunning":
-        autoFishRunning.set((Boolean) evt.getNewValue());
+      case "isAutoFishingRunning":
+        Platform.runLater(() -> {
+          autoFishRunning.set((Boolean) evt.getNewValue());
+          errorMessage.set("Running: " + autoFishRunning.get());
+        });
         break;
       case "fishCaught":
-        errorMessage.set("Fish caught!");
+        Platform.runLater(() -> {
+          errorMessage.set("Fish caught!");
+        });
         break;
       case "error":
-        errorMessage.set("Error: " + evt.getNewValue());
+        Platform.runLater(() -> {
+          errorMessage.set("Error: " + evt.getNewValue());
+        });
+        break;
+      case "fishingRegionChanged":
+        Platform.runLater(() -> {
+          currentFishingRegion.set((Rectangle) evt.getNewValue());
+        });
         break;
     }
     System.out.println(
