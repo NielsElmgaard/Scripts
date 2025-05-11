@@ -21,10 +21,12 @@ public class AutoClicker
   private PropertyChangeSupport property;
   private int triggerKeyCode = NativeKeyEvent.VC_CAPS_LOCK;
   private boolean isListenerActive = false;
+  private Thread grinderThread;
 
   public AutoClicker(int delay)
   {
     this.property = new PropertyChangeSupport(this);
+    this.grinderThread = new Thread();
     setDelay(delay);
     try
     {
@@ -49,7 +51,8 @@ public class AutoClicker
       }
       catch (Exception e)
       {
-        System.err.println("Error registering AutoClicker key listener: " + e.getMessage());
+        System.err.println(
+            "Error registering AutoClicker key listener: " + e.getMessage());
       }
     }
   }
@@ -60,7 +63,8 @@ public class AutoClicker
     {
       GlobalScreen.removeNativeKeyListener(this);
       isListenerActive = false;
-      System.out.println("AutoClicker key listener unregistered.");    }
+      System.out.println("AutoClicker key listener unregistered.");
+    }
   }
 
   public int getDelay()
@@ -84,15 +88,8 @@ public class AutoClicker
   {
     if (robot != null && isRunning)
     {
-      System.out.println("Clicked!");
-      System.out.println(isRunning);
-      Thread.sleep(500);
-      robot.mousePress(InputEvent.BUTTON1_MASK);
-      System.out.println("Released!");
-      System.out.println(isRunning);
-      robot.mouseRelease(InputEvent.BUTTON1_MASK);
-      System.out.println(isRunning);
-      System.out.println(Thread.currentThread().getName());
+        robot.mousePress(InputEvent.BUTTON1_MASK);
+        robot.mouseRelease(InputEvent.BUTTON1_MASK);
     }
   }
 
@@ -104,7 +101,8 @@ public class AutoClicker
       isRunning = true;
       property.firePropertyChange("isAutoGrindRunning", oldValue,
           this.isRunning);
-      Thread clickerThread = new Thread(() -> {
+
+      this.grinderThread = new Thread(() -> {
         try
         {
           while (isRunning)
@@ -132,8 +130,8 @@ public class AutoClicker
               "Error during autoClicking: " + e.getMessage());
         }
       });
-      clickerThread.setDaemon(true);
-      clickerThread.start();
+      this.grinderThread.setDaemon(true);
+      this.grinderThread.start();
     }
   }
 
@@ -146,6 +144,10 @@ public class AutoClicker
       property.firePropertyChange("isAutoGrindRunning", oldValue,
           this.isRunning);
       System.out.println("Stopped! ");
+    }
+    if (grinderThread != null && grinderThread.isAlive())
+    {
+      grinderThread.interrupt();
     }
   }
 
