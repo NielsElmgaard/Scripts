@@ -23,7 +23,7 @@ public class ModelManager implements Model
   {
     this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
-    this.autoMine = new AutoMine();
+    this.autoMine = new AutoMine(50);
     this.property = new PropertyChangeSupport(this);
 
     autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
@@ -42,6 +42,7 @@ public class ModelManager implements Model
     autoMine.addListener("error", evt -> property.firePropertyChange(evt));
     autoMine.addListener("miningRegionChanged",
         evt -> property.firePropertyChange(evt));
+    autoMine.addListener("turnAmount",evt -> property.firePropertyChange(evt));
 
     try
     {
@@ -73,6 +74,16 @@ public class ModelManager implements Model
       System.out.println(
           "AutoFishing key listener unregistered (via AutoFishing method).");
     }
+  }
+
+  @Override public int getTurnAmount()
+  {
+    return autoMine.getTurnAmount();
+  }
+
+  @Override public void setTurnAmount(int turnAmount)
+  {
+    autoMine.setTurnAmount(turnAmount);
   }
 
   @Override public boolean isAutoMiningRunning()

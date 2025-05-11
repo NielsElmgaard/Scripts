@@ -8,13 +8,13 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import utility.observer.javaobserver.NamedPropertyChangeSubject;
+
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-
 
 public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
 {
@@ -32,12 +32,14 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
   private PropertyChangeSupport property;
   private boolean isListenerActive = false;
   private boolean isTriggerKeyPressed = false;
+  private int turnAmount;
 
-  public AutoMine()
+  public AutoMine(int turnAmount)
   {
     this.property = new PropertyChangeSupport(this);
     this.isRunning = false;
     this.miningThread = new Thread();
+    setTurnAmount(turnAmount);
     try
     {
       this.robot = new Robot();
@@ -65,6 +67,21 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     property.firePropertyChange("miningRegionChanged", oldValue,
         this.currentMiningRegion);
     System.out.println("Mining region updated: " + currentMiningRegion);
+  }
+
+  public int getTurnAmount()
+  {
+    return turnAmount;
+  }
+
+  public void setTurnAmount(int turnAmount)
+  {
+    if (turnAmount >= 0)
+    {
+      int oldValue = this.turnAmount;
+      this.turnAmount = turnAmount;
+      property.firePropertyChange("turnAmount", oldValue, this.turnAmount);
+    }
   }
 
   public void registerKeyListener()
@@ -209,9 +226,8 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       int currentX = currentMouse.x;
       int currentY = currentMouse.y;
 
-      int turnAmount = 50;  // Amount of pixel movement for the turn (adjustable)
-      int steps = 10;  // Number of steps to move the mouse (for smoother transition)
-      int delay = 10;  // Delay between each step in milliseconds
+      int steps = 10;
+      int delay = 10;
 
       robot.keyRelease(KeyEvent.VK_W);
       robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -219,22 +235,19 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
 
       robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
 
-      // Gradually move the mouse to simulate a smooth turn
       for (int i = 0; i < steps; i++)
       {
         int newX = currentX + (turnAmount * i / steps);
         robot.mouseMove(newX, currentY);
-        Thread.sleep(delay);  // Slow down the movement for smoothness
+        Thread.sleep(delay);
       }
 
-      /// Release right mouse button
       robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
 
-      // Return mouse to original position
       robot.mouseMove(currentX, currentY);
 
-      System.out.println("Performed a 180-degree turn");
-      Thread.sleep(50);  // Small delay before continuing
+      System.out.println("Performed a turn");
+      Thread.sleep(50);
       for (int i = 0; i < 5; i++)
       {
         robot.keyPress(KeyEvent.VK_W);
