@@ -27,4 +27,14 @@ public interface Model extends NamedPropertyChangeSubject
   Rectangle getCurrentFishingRegion();
   void setFishingRegion(Rectangle region);
   void setAutoFishingViewActive(boolean isActive) throws NativeHookException;
+
+  // Auto Mining
+  boolean isAutoMiningRunning();
+  void setTriggerKeyCodeForAutoMining(int keyCode);
+  void startMining();
+  void stopMining();
+  NativeKeyListener getAutoMining();
+  Rectangle getCurrentMiningRegion();
+  void setMiningRegion(Rectangle region);
+  void setAutoMiningViewActive(boolean isActive) throws NativeHookException;
 }

@@ -33,7 +33,7 @@ public class AutoFishing
   private Robot robot;
   private Thread fishingThread;
   private ITesseract tesseract;
-  private int triggerKeyCode = NativeKeyEvent.VC_SCROLL_LOCK;
+  private int triggerKeyCode = NativeKeyEvent.VC_CAPS_LOCK;
   private PropertyChangeSupport property;
   private boolean isListenerActive = false;
 
@@ -147,7 +147,7 @@ public class AutoFishing
         BufferedImage screenshot = robot.createScreenCapture(
             currentFishingRegion);
 
-        File outputfile = new File("saved.png");
+        File outputfile = new File("autoFish.png");
         ImageIO.write(screenshot, "png", outputfile);
 
         String result = "";

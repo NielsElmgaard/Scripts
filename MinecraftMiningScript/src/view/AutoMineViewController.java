@@ -4,25 +4,26 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.Region;
-import viewmodel.AutoFishingViewModel;
+import model.AutoMine;
+import viewmodel.AutoMineViewModel;
 
 import java.awt.*;
 
-public class AutoFishingViewController
+public class AutoMineViewController
 {
-  private AutoFishingViewModel viewModel;
+  private AutoMineViewModel viewModel;
   private Region root;
   private ViewHandler viewHandler;
   @FXML private Label errorLabel;
   @FXML private RadioButton defaultRegionRadio;
   @FXML private RadioButton p1080RegionRadio;
 
-  public AutoFishingViewController()
+  public AutoMineViewController()
   {
 
   }
 
-  public void init(ViewHandler viewHandler, AutoFishingViewModel viewModel,
+  public void init(ViewHandler viewHandler, AutoMineViewModel viewModel,
       Region root)
   {
     this.viewHandler = viewHandler;
@@ -31,24 +32,24 @@ public class AutoFishingViewController
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
 
-    Rectangle currentRegion = viewModel.currentFishingRegionProperty().get();
-    if (currentRegion.equals(model.AutoFishing.FISHING_REGION_DEFAULT))
+    Rectangle currentRegion = viewModel.currentMiningRegionProperty().get();
+    if (currentRegion.equals(AutoMine.MINING_REGION_DEFAULT))
     {
       defaultRegionRadio.setSelected(true);
     }
-    else if (currentRegion.equals(model.AutoFishing.FISHING_REGION_1080P))
+    else if (currentRegion.equals(AutoMine.MINING_REGION_1080P))
     {
       p1080RegionRadio.setSelected(true);
     }
     defaultRegionRadio.setOnAction(event -> viewModel.setDefaultRegion());
     p1080RegionRadio.setOnAction(event -> viewModel.set1080pRegion());
     System.out.println(
-        "Fishing key active in init? " + viewModel.isViewActiveProperty());
+        "Mining key active in init? " + viewModel.isViewActiveProperty());
 
     viewModel.setViewActive(true);
 
     System.out.println(
-        "Fishing key active in init? " + viewModel.isViewActiveProperty());
+        "Mining key active in init? " + viewModel.isViewActiveProperty());
 
   }
 
@@ -62,18 +63,18 @@ public class AutoFishingViewController
     return root;
   }
 
-  @FXML private void autoFishButton()
+  @FXML private void autoMineButton()
   {
-    viewModel.toggleAutoFishing();
+    viewModel.toggleAutoMining();
   }
 
   @FXML private void backButton()
   {
     System.out.println(
-        "Fishing key active in back? " + viewModel.isViewActiveProperty());
+        "Mining key active in back? " + viewModel.isViewActiveProperty());
     viewModel.setViewActive(false);
     System.out.println(
-        "Fishing key active in back? " + viewModel.isViewActiveProperty());
+        "Mining key active in back? " + viewModel.isViewActiveProperty());
     viewHandler.openView("scripts");
   }
 

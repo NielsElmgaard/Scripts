@@ -7,12 +7,16 @@ public class ViewModelFactory
 {
   private MinecraftMiningScriptsViewModel minecraftMiningScriptsViewModel;
   private AutoClickViewModel autoclickViewModel;
-private AutoFishingViewModel autoFishingViewModel;
+  private AutoFishingViewModel autoFishingViewModel;
+  private AutoMineViewModel autoMineViewModel;
 
-  public ViewModelFactory(Model model){
-    this.minecraftMiningScriptsViewModel=new MinecraftMiningScriptsViewModel(model);
-    this.autoclickViewModel=new AutoClickViewModel(model);
-    this.autoFishingViewModel=new AutoFishingViewModel(model);
+  public ViewModelFactory(Model model)
+  {
+    this.minecraftMiningScriptsViewModel = new MinecraftMiningScriptsViewModel(
+        model);
+    this.autoclickViewModel = new AutoClickViewModel(model);
+    this.autoFishingViewModel = new AutoFishingViewModel(model);
+    this.autoMineViewModel = new AutoMineViewModel(model);
   }
 
   public MinecraftMiningScriptsViewModel getMinecraftMiningScriptsViewModel()
@@ -28,5 +32,10 @@ private AutoFishingViewModel autoFishingViewModel;
   public AutoFishingViewModel getAutoFishingViewModel()
   {
     return autoFishingViewModel;
+  }
+
+  public AutoMineViewModel getAutoMineViewModel()
+  {
+    return autoMineViewModel;
   }
 }
