@@ -20,8 +20,8 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
 {
   public static final Rectangle MINING_REGION_DEFAULT = new Rectangle(2159,
       1000, 400, 439);
-  public static final Rectangle MINING_REGION_1080P = new Rectangle(1520, 700,
-      400, 379);
+  public static final Rectangle MINING_REGION_1080P = new Rectangle(1619, 750,
+      300, 329);
   private Rectangle currentMiningRegion = MINING_REGION_DEFAULT;
 
   private volatile boolean isRunning;
