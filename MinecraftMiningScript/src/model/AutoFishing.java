@@ -24,9 +24,9 @@ public class AutoFishing
 
   private static final String FISHING_SUBTITLE = "Hote";
   public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159,
-      1187, 400, 252);
-  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1520, 828,
-      400, 252);
+      1000, 400, 439);
+  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1619, 750,
+      300, 329);
   private Rectangle currentFishingRegion = FISHING_REGION_DEFAULT;
 
   private boolean isRunning;
