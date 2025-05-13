@@ -15,6 +15,7 @@ public class AutoMineViewModel implements PropertyChangeListener
 {
   private Model model;
   private IntegerProperty turnAmount;
+  private IntegerProperty miningDurationMilliseconds;
   private StringProperty errorMessage;
   private BooleanProperty autoMineRunning;
   private IntegerProperty triggerKeyCode;
@@ -25,6 +26,7 @@ public class AutoMineViewModel implements PropertyChangeListener
   {
     this.model = model;
     this.turnAmount = new SimpleIntegerProperty(model.getTurnAmount());
+    this.miningDurationMilliseconds=new SimpleIntegerProperty(model.getMiningDurationMilliseconds());
     this.autoMineRunning = new SimpleBooleanProperty(
         model.isAutoMiningRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
@@ -48,6 +50,19 @@ public class AutoMineViewModel implements PropertyChangeListener
       }
     });
 
+    this.miningDurationMilliseconds.addListener(
+        (observable, oldValue, newValue) -> {
+          if (newValue != null && newValue.intValue() >= 0)
+          {
+            model.setMiningDurationMilliseconds(newValue.intValue());
+          }
+          else
+          {
+            errorMessage.set("Invalid milliseconds.");
+            miningDurationMilliseconds.set(oldValue.intValue());
+          }
+        });
+
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
       {
@@ -68,7 +83,7 @@ public class AutoMineViewModel implements PropertyChangeListener
     });
 
     model.addListener("isAutoMiningRunning", this);
-    model.addListener("miningWall", this);
+    model.addListener("miningTurn", this);
     model.addListener("error", this);
     model.addListener("miningRegionChanged", this);
     model.addListener("turnAmount", this);
@@ -90,6 +105,7 @@ public class AutoMineViewModel implements PropertyChangeListener
     autoMineRunning.set(false);
     setViewActive(true);
     turnAmount.set(model.getTurnAmount());
+    miningDurationMilliseconds.set(model.getMiningDurationMilliseconds());
   }
 
   public void toggleAutoMining()
@@ -129,6 +145,11 @@ public class AutoMineViewModel implements PropertyChangeListener
     return turnAmount;
   }
 
+  public IntegerProperty miningDurationMillisecondsProperty()
+  {
+    return miningDurationMilliseconds;
+  }
+
   public void setDefaultRegion()
   {
     model.setMiningRegion(AutoMine.MINING_REGION_DEFAULT);
@@ -150,9 +171,9 @@ public class AutoMineViewModel implements PropertyChangeListener
           errorMessage.set("Running: " + autoMineRunning.get());
         });
         break;
-      case "miningWall":
+      case "miningTurn":
         Platform.runLater(() -> {
-          errorMessage.set("wall hit!");
+          miningDurationMilliseconds.set((Integer) evt.getNewValue());
         });
         break;
       case "error":

@@ -44,7 +44,43 @@
         </HBox>
       <HBox alignment="CENTER" prefHeight="200.0" prefWidth="600.0">
          <children>
-            <TextField fx:id="turnAmount" alignment="CENTER" prefHeight="95.0" prefWidth="481.0" promptText="Turn amount">
+            <HBox alignment="CENTER_LEFT" prefHeight="83.0" prefWidth="201.0">
+               <children>
+                  <Label contentDisplay="CENTER" text="Turn Amount:">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <TextField fx:id="turnAmount" alignment="CENTER" prefHeight="83.0" prefWidth="245.0" promptText="Turn amount">
+               <font>
+                  <Font size="28.0" />
+               </font>
+            </TextField>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="200.0" prefWidth="600.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="83.0" prefWidth="202.0">
+               <children>
+                  <Label text="Mining Duration (Milliseconds)">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </HBox>
+            <TextField fx:id="miningDurationMilliseconds" prefHeight="83.0" prefWidth="242.0" promptText="Mining Duration">
                <font>
                   <Font size="28.0" />
                </font>

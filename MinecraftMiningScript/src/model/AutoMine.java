@@ -33,13 +33,15 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
   private boolean isListenerActive = false;
   private boolean isTriggerKeyPressed = false;
   private int turnAmount;
+  private int miningDurationMilliseconds;
 
-  public AutoMine(int turnAmount)
+  public AutoMine(int turnAmount, int miningDurationMilliseconds)
   {
     this.property = new PropertyChangeSupport(this);
     this.isRunning = false;
     this.miningThread = new Thread();
     setTurnAmount(turnAmount);
+    setMiningDurationMilliseconds(miningDurationMilliseconds);
     try
     {
       this.robot = new Robot();
@@ -82,6 +84,16 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       this.turnAmount = turnAmount;
       property.firePropertyChange("turnAmount", oldValue, this.turnAmount);
     }
+  }
+
+  public int getMiningDurationMilliseconds()
+  {
+    return miningDurationMilliseconds;
+  }
+
+  public void setMiningDurationMilliseconds(int miningDurationMilliseconds)
+  {
+    this.miningDurationMilliseconds = miningDurationMilliseconds;
   }
 
   public void registerKeyListener()
@@ -159,27 +171,12 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       {
         robot.keyPress(KeyEvent.VK_W);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        while (isRunning && !Thread.currentThread().isInterrupted())
+        long startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
         {
-          BufferedImage screenshot = robot.createScreenCapture(
-              currentMiningRegion);
-
-          String result = "";
-          try
-          {
-            result = tesseract.doOCR(screenshot).toUpperCase();
-            System.out.println("OCR Result: \"" + result + "\"");
-          }
-          catch (TesseractException e)
-          {
-            System.err.println("Tesseract OCR error: " + e.getMessage());
-            break;
-          }
-          if (!(result.contains("BROKEN") || result.contains("BRAOKEN")))
-          {
-            break;
-          }
-          Thread.sleep(50);
+          Thread.sleep(100);
         }
         robot.keyRelease(KeyEvent.VK_W);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -189,8 +186,10 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
           break;
         }
 
-        property.firePropertyChange("miningWall", false, true);
-        System.out.println("Wall detected! Turning 180...");
+        int oldValue = this.miningDurationMilliseconds;
+        property.firePropertyChange("miningTurn", oldValue, this.miningDurationMilliseconds);
+        System.out.println("Mining for " + miningDurationMilliseconds / 1000
+            + " seconds. Turning 180...");
         Thread.sleep(200);
         turn180();
         Thread.sleep(200);
@@ -223,42 +222,47 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     try
     {
       Point currentMouse = MouseInfo.getPointerInfo().getLocation();
-      int currentX = currentMouse.x;
-      int currentY = currentMouse.y;
+      int centerX = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
+      int centerY = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
 
+      double sweepAmount = getTurnAmount();
       int steps = 10;
-      int delay = 10;
+      int delay = 40;
 
       robot.keyRelease(KeyEvent.VK_W);
       robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
       Thread.sleep(50);
 
+      robot.mouseMove(centerX, centerY);
+      Thread.sleep(delay);
+      Point pivotPoint = new Point(centerX, centerY);
+
       robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
 
-      for (int i = 0; i < steps; i++)
+      for (int i = 1; i <= steps; i++)
       {
-        int newX = currentX + (turnAmount * i / steps);
-        robot.mouseMove(newX, currentY);
+        int deltaX = (int) (sweepAmount * Math.sin(Math.PI * i / steps));
+        robot.mouseMove(pivotPoint.x + deltaX, pivotPoint.y);
         Thread.sleep(delay);
       }
 
       robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
 
-      robot.mouseMove(currentX, currentY);
-
+      robot.mouseMove(currentMouse.x, currentMouse.y);
       System.out.println("Performed a turn");
-      Thread.sleep(50);
-      for (int i = 0; i < 5; i++)
-      {
-        robot.keyPress(KeyEvent.VK_W);
-        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-        Thread.sleep(1000);
-      }
+      Thread.sleep(100);
+
+//      robot.keyPress(KeyEvent.VK_W);
+//      robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+//      Thread.sleep(1500);
+//      robot.keyRelease(KeyEvent.VK_W);
+//      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+//      Thread.sleep(100);
     }
     catch (InterruptedException e)
     {
       Thread.currentThread().interrupt();
-      System.err.println("Turn interrupted");
+      System.err.println("Turn interrupted.");
     }
   }
 

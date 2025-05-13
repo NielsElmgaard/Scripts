@@ -31,6 +31,8 @@ public interface Model extends NamedPropertyChangeSubject
   // Auto Mining
   int getTurnAmount();
   void setTurnAmount(int turnAmount);
+  void setMiningDurationMilliseconds(int miningDurationMilliseconds);
+  int getMiningDurationMilliseconds();
   boolean isAutoMiningRunning();
   void setTriggerKeyCodeForAutoMining(int keyCode);
   void startMining();
