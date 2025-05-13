@@ -23,7 +23,7 @@ public class ModelManager implements Model
   {
     this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
-    this.autoMine = new AutoMine(1000,5000);
+    this.autoMine = new AutoMine(1000,7000);
     this.property = new PropertyChangeSupport(this);
 
     autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
