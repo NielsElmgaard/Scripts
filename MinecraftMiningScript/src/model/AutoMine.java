@@ -169,6 +169,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     {
       while (isRunning && !Thread.currentThread().isInterrupted())
       {
+        robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_W);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         long startTime = System.currentTimeMillis();
@@ -178,6 +179,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
         {
           Thread.sleep(100);
         }
+        robot.keyRelease(KeyEvent.VK_CONTROL);
         robot.keyRelease(KeyEvent.VK_W);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
@@ -205,6 +207,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     {
       try
       {
+        robot.keyRelease(KeyEvent.VK_CONTROL);
         robot.keyRelease(KeyEvent.VK_W);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
       }
@@ -229,6 +232,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       int steps = 10;
       int delay = 40;
 
+      robot.keyRelease(KeyEvent.VK_CONTROL);
       robot.keyRelease(KeyEvent.VK_W);
       robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
       Thread.sleep(50);
