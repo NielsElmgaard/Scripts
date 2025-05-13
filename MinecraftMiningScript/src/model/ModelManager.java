@@ -23,7 +23,7 @@ public class ModelManager implements Model
   {
     this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
-    this.autoMine = new AutoMine(50);
+    this.autoMine = new AutoMine(1000,5000);
     this.property = new PropertyChangeSupport(this);
 
     autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
@@ -38,7 +38,7 @@ public class ModelManager implements Model
 
     autoMine.addListener("isAutoMiningRunning",
         evt -> property.firePropertyChange(evt));
-    autoMine.addListener("miningWall", evt -> property.firePropertyChange(evt));
+    autoMine.addListener("miningTurn", evt -> property.firePropertyChange(evt));
     autoMine.addListener("error", evt -> property.firePropertyChange(evt));
     autoMine.addListener("miningRegionChanged",
         evt -> property.firePropertyChange(evt));
@@ -84,6 +84,17 @@ public class ModelManager implements Model
   @Override public void setTurnAmount(int turnAmount)
   {
     autoMine.setTurnAmount(turnAmount);
+  }
+
+  @Override public void setMiningDurationMilliseconds(
+      int miningDurationMilliseconds)
+  {
+    autoMine.setMiningDurationMilliseconds(miningDurationMilliseconds);
+  }
+
+  @Override public int getMiningDurationMilliseconds()
+  {
+    return autoMine.getMiningDurationMilliseconds();
   }
 
   @Override public boolean isAutoMiningRunning()

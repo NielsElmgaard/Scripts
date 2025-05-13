@@ -21,6 +21,7 @@ public class AutoMineViewController
   @FXML private RadioButton defaultRegionRadio;
   @FXML private RadioButton p1080RegionRadio;
   @FXML private TextField turnAmount;
+  @FXML private TextField miningDurationMilliseconds;
 
   public AutoMineViewController()
   {
@@ -36,6 +37,9 @@ public class AutoMineViewController
 
     Bindings.bindBidirectional(turnAmount.textProperty(),
         this.viewModel.turnAmountProperty(), new NumberStringConverter());
+
+    Bindings.bindBidirectional(miningDurationMilliseconds.textProperty(),
+        this.viewModel.miningDurationMillisecondsProperty(), new NumberStringConverter());
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
 
