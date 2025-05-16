@@ -23,7 +23,7 @@ public class ModelManager implements Model
   {
     this.autoClicker = new AutoClicker(50);
     this.autoFishing = new AutoFishing();
-    this.autoMine = new AutoMine(1000,7000);
+    this.autoMine = new AutoMine(1000,5000);
     this.property = new PropertyChangeSupport(this);
 
     autoClicker.addListener("delay", evt -> property.firePropertyChange(evt));
@@ -35,6 +35,7 @@ public class ModelManager implements Model
     autoFishing.addListener("fishCaught",
         evt -> property.firePropertyChange(evt));
     autoFishing.addListener("error", evt -> property.firePropertyChange(evt));
+    autoFishing.addListener("ocrResult",evt -> property.firePropertyChange(evt));
 
     autoMine.addListener("isAutoMiningRunning",
         evt -> property.firePropertyChange(evt));
@@ -90,6 +91,7 @@ public class ModelManager implements Model
       int miningDurationMilliseconds)
   {
     autoMine.setMiningDurationMilliseconds(miningDurationMilliseconds);
+    System.out.println("ModelManager: Setting miningDurationMilliseconds to: " + miningDurationMilliseconds);
   }
 
   @Override public int getMiningDurationMilliseconds()
