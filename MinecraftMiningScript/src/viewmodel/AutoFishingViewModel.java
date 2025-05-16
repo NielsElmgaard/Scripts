@@ -10,6 +10,8 @@ import model.Model;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class AutoFishingViewModel implements PropertyChangeListener
 {
@@ -19,6 +21,7 @@ public class AutoFishingViewModel implements PropertyChangeListener
   private IntegerProperty triggerKeyCode;
   private ObjectProperty<Rectangle> currentFishingRegion;
   private BooleanProperty isViewActive;
+  private StringProperty ocrResultLog;
 
   public AutoFishingViewModel(Model model)
   {
@@ -33,6 +36,7 @@ public class AutoFishingViewModel implements PropertyChangeListener
     this.isViewActive=new SimpleBooleanProperty(false);
     this.errorMessage = new SimpleStringProperty(
         "Running: " + autoFishRunning.get());
+    this.ocrResultLog = new SimpleStringProperty("");
 
     this.triggerKeyCode.addListener((observable, oldValue, newValue) -> {
       if (newValue != null)
@@ -56,6 +60,20 @@ public class AutoFishingViewModel implements PropertyChangeListener
     model.addListener("fishCaught", this);
     model.addListener("error", this);
     model.addListener("fishingRegionChanged", this);
+    model.addListener("ocrResult", this);
+  }
+
+  private void logOcrResult(String result) {
+    Platform.runLater(() -> {
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+      String timestamp = LocalDateTime.now().format(formatter);
+      ocrResultLog.set(ocrResultLog.get() + "[" + timestamp + "] OCR Result: \"" + result.trim() + "\"\n");
+    });
+  }
+
+  public StringProperty ocrResultLogProperty()
+  {
+    return ocrResultLog;
   }
 
   public BooleanProperty isViewActiveProperty() {
@@ -136,6 +154,13 @@ public class AutoFishingViewModel implements PropertyChangeListener
       case "fishingRegionChanged":
         Platform.runLater(() -> {
           currentFishingRegion.set((Rectangle) evt.getNewValue());
+        });
+        break;
+      case "ocrResult":
+        Platform.runLater(() -> {
+          if (evt.getNewValue() != null) {
+            logOcrResult(evt.getNewValue().toString());
+          }
         });
         break;
     }
