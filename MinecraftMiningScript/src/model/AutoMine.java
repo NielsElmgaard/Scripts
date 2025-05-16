@@ -170,18 +170,52 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       while (isRunning && !Thread.currentThread().isInterrupted())
       {
         robot.keyPress(KeyEvent.VK_CONTROL);
-        robot.keyPress(KeyEvent.VK_W);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+
         long startTime = System.currentTimeMillis();
+
+        robot.keyPress(KeyEvent.VK_W);
+        robot.keyPress(KeyEvent.VK_D);
+
         while (isRunning && !Thread.currentThread().isInterrupted() && (
             System.currentTimeMillis() - startTime
                 < miningDurationMilliseconds))
         {
           Thread.sleep(100);
         }
-        robot.keyRelease(KeyEvent.VK_CONTROL);
         robot.keyRelease(KeyEvent.VK_W);
-        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+        robot.keyPress(KeyEvent.VK_S);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_D);
+
+        robot.keyPress(KeyEvent.VK_A);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_S);
+
+        robot.keyPress(KeyEvent.VK_W);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_A);
+
+        robot.keyRelease(KeyEvent.VK_W);
 
         if (!isRunning)
         {
@@ -189,12 +223,10 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
         }
 
         int oldValue = this.miningDurationMilliseconds;
-        property.firePropertyChange("miningTurn", oldValue, this.miningDurationMilliseconds);
+        property.firePropertyChange("miningTurn", oldValue,
+            this.miningDurationMilliseconds);
         System.out.println("Mining for " + miningDurationMilliseconds / 1000
             + " seconds. Turning 180...");
-        Thread.sleep(200);
-        turn180();
-        Thread.sleep(200);
       }
     }
     catch (InterruptedException e)
@@ -209,6 +241,9 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       {
         robot.keyRelease(KeyEvent.VK_CONTROL);
         robot.keyRelease(KeyEvent.VK_W);
+        robot.keyRelease(KeyEvent.VK_A);
+        robot.keyRelease(KeyEvent.VK_S);
+        robot.keyRelease(KeyEvent.VK_D);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
       }
       catch (Exception ignored)
@@ -256,12 +291,12 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       System.out.println("Performed a turn");
       Thread.sleep(100);
 
-//      robot.keyPress(KeyEvent.VK_W);
-//      robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-//      Thread.sleep(1500);
-//      robot.keyRelease(KeyEvent.VK_W);
-//      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-//      Thread.sleep(100);
+      //      robot.keyPress(KeyEvent.VK_W);
+      //      robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+      //      Thread.sleep(1500);
+      //      robot.keyRelease(KeyEvent.VK_W);
+      //      robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      //      Thread.sleep(100);
     }
     catch (InterruptedException e)
     {

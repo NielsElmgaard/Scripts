@@ -63,13 +63,20 @@ public class AutoFishingViewModel implements PropertyChangeListener
     model.addListener("ocrResult", this);
   }
 
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+
   private void logOcrResult(String result) {
+    String safeResult = (result == null) ? "" : result.trim();
+    String timestamp = LocalDateTime.now().format(TIME_FORMATTER);
+    String newLogEntry = "[" + timestamp + "] OCR Result: \"" + safeResult + "\"\n";
+
     Platform.runLater(() -> {
-      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-      String timestamp = LocalDateTime.now().format(formatter);
-      ocrResultLog.set(ocrResultLog.get() + "[" + timestamp + "] OCR Result: \"" + result.trim() + "\"\n");
+      // Hvis ocrResultLog aldrig er null
+      String currentLog = ocrResultLog.get();
+      ocrResultLog.set(currentLog + newLogEntry);
     });
   }
+
 
   public StringProperty ocrResultLogProperty()
   {
