@@ -22,11 +22,11 @@ public class AutoFishing
     implements NamedPropertyChangeSubject, NativeKeyListener
 {
 
-  private static final String FISHING_SUBTITLE = "Hote";
+  private static final String FISHING_SUBTITLE = "Block";
   public static final Rectangle FISHING_REGION_DEFAULT = new Rectangle(2159,
       1000, 400, 439);
-  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1619, 750,
-      300, 329);
+  public static final Rectangle FISHING_REGION_1080P = new Rectangle(1419, 750,
+      500, 329);
   private Rectangle currentFishingRegion = FISHING_REGION_DEFAULT;
 
   private boolean isRunning;
@@ -155,6 +155,7 @@ public class AutoFishing
         {
           result = tesseract.doOCR(screenshot);
           System.out.println("OCR Result: \"" + result.trim() + "\"");
+          property.firePropertyChange("ocrResult", null, result.trim());
         }
         catch (TesseractException e)
         {

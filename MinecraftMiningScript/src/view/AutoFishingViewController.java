@@ -3,6 +3,7 @@ package view;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.Region;
 import viewmodel.AutoFishingViewModel;
 
@@ -16,6 +17,7 @@ public class AutoFishingViewController
   @FXML private Label errorLabel;
   @FXML private RadioButton defaultRegionRadio;
   @FXML private RadioButton p1080RegionRadio;
+  @FXML private TextArea logArea;
 
   public AutoFishingViewController()
   {
@@ -30,6 +32,7 @@ public class AutoFishingViewController
     this.root = root;
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
+    logArea.textProperty().bind(viewModel.ocrResultLogProperty());
 
     Rectangle currentRegion = viewModel.currentFishingRegionProperty().get();
     if (currentRegion.equals(model.AutoFishing.FISHING_REGION_DEFAULT))
