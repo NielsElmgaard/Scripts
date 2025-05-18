@@ -38,6 +38,7 @@ public class AutoFishingViewController
       logArea.positionCaret(logArea.getLength());
     });
 
+
     Rectangle currentRegion = viewModel.currentFishingRegionProperty().get();
     if (currentRegion.equals(model.AutoFishing.FISHING_REGION_DEFAULT))
     {
