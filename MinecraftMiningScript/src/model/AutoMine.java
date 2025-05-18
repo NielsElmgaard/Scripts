@@ -189,7 +189,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
         startTime = System.currentTimeMillis();
         while (isRunning && !Thread.currentThread().isInterrupted() && (
             System.currentTimeMillis() - startTime
-                < miningDurationMilliseconds))
+                < miningDurationMilliseconds+(miningDurationMilliseconds/3)))
         {
           Thread.sleep(100);
         }
@@ -199,7 +199,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
         startTime = System.currentTimeMillis();
         while (isRunning && !Thread.currentThread().isInterrupted() && (
             System.currentTimeMillis() - startTime
-                < miningDurationMilliseconds))
+                < miningDurationMilliseconds+(miningDurationMilliseconds/2.5)))
         {
           Thread.sleep(100);
         }

@@ -35,25 +35,25 @@ public class AutoMineViewController
     this.viewModel = viewModel;
     this.root = root;
 
-    Bindings.bindBidirectional(turnAmount.textProperty(),
-        this.viewModel.turnAmountProperty(), new NumberStringConverter());
+//    Bindings.bindBidirectional(turnAmount.textProperty(),
+//        this.viewModel.turnAmountProperty(), new NumberStringConverter());
 
     Bindings.bindBidirectional(miningDurationMilliseconds.textProperty(),
         this.viewModel.miningDurationMillisecondsProperty(), new NumberStringConverter());
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
 
-    Rectangle currentRegion = viewModel.currentMiningRegionProperty().get();
-    if (currentRegion.equals(AutoMine.MINING_REGION_DEFAULT))
-    {
-      defaultRegionRadio.setSelected(true);
-    }
-    else if (currentRegion.equals(AutoMine.MINING_REGION_1080P))
-    {
-      p1080RegionRadio.setSelected(true);
-    }
-    defaultRegionRadio.setOnAction(event -> viewModel.setDefaultRegion());
-    p1080RegionRadio.setOnAction(event -> viewModel.set1080pRegion());
+//    Rectangle currentRegion = viewModel.currentMiningRegionProperty().get();
+//    if (currentRegion.equals(AutoMine.MINING_REGION_DEFAULT))
+//    {
+//      defaultRegionRadio.setSelected(true);
+//    }
+//    else if (currentRegion.equals(AutoMine.MINING_REGION_1080P))
+//    {
+//      p1080RegionRadio.setSelected(true);
+//    }
+//    defaultRegionRadio.setOnAction(event -> viewModel.setDefaultRegion());
+//    p1080RegionRadio.setOnAction(event -> viewModel.set1080pRegion());
 
     viewModel.setViewActive(true);
   }
