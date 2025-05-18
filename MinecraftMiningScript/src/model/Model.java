@@ -41,4 +41,6 @@ public interface Model extends NamedPropertyChangeSubject
   Rectangle getCurrentMiningRegion();
   void setMiningRegion(Rectangle region);
   void setAutoMiningViewActive(boolean isActive) throws NativeHookException;
+  void setMiningMode(MiningMode miningMode);
+  MiningMode getMiningMode();
 }

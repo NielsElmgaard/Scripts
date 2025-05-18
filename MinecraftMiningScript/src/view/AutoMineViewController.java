@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Region;
 import javafx.util.converter.NumberStringConverter;
 import model.AutoMine;
@@ -18,8 +19,9 @@ public class AutoMineViewController
   private Region root;
   private ViewHandler viewHandler;
   @FXML private Label errorLabel;
-  @FXML private RadioButton defaultRegionRadio;
-  @FXML private RadioButton p1080RegionRadio;
+  @FXML private RadioButton zicZacRadio;
+  @FXML private RadioButton holdInRadio;
+  @FXML private ToggleGroup scriptToggleGroup;
   @FXML private TextField turnAmount;
   @FXML private TextField miningDurationMilliseconds;
 
@@ -42,6 +44,16 @@ public class AutoMineViewController
         this.viewModel.miningDurationMillisecondsProperty(), new NumberStringConverter());
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
+
+    viewModel.currentAutoMineScriptProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        zicZacRadio.setSelected(newValue.equals("ZIC_ZAC"));
+        holdInRadio.setSelected(newValue.equals("HOLD_IN"));
+      }
+    });
+
+    zicZacRadio.setOnAction(event -> viewModel.currentAutoMineScriptProperty().set("ZIC_ZAC"));
+    holdInRadio.setOnAction(event -> viewModel.currentAutoMineScriptProperty().set("HOLD_IN"));
 
 //    Rectangle currentRegion = viewModel.currentMiningRegionProperty().get();
 //    if (currentRegion.equals(AutoMine.MINING_REGION_DEFAULT))

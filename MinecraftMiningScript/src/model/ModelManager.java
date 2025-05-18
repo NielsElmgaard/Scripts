@@ -44,7 +44,7 @@ public class ModelManager implements Model
     autoMine.addListener("miningRegionChanged",
         evt -> property.firePropertyChange(evt));
     autoMine.addListener("turnAmount",evt -> property.firePropertyChange(evt));
-
+    autoMine.addListener("miningMode",evt -> property.firePropertyChange(evt));
     try
     {
       GlobalScreen.registerNativeHook();
@@ -151,6 +151,16 @@ public class ModelManager implements Model
       System.out.println(
           "AutoMining key listener unregistered (via AutoMine method).");
     }
+  }
+
+  @Override public void setMiningMode(MiningMode miningMode)
+  {
+    autoMine.setCurrentMiningMode(miningMode);
+  }
+
+  @Override public MiningMode getMiningMode()
+  {
+    return autoMine.getCurrentMiningMode();
   }
 
   @Override public void setAutoGrinderViewActive(boolean isActive)

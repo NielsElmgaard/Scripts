@@ -5,6 +5,7 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import model.AutoMine;
+import model.MiningMode;
 import model.Model;
 
 import java.awt.*;
@@ -20,19 +21,23 @@ public class AutoMineViewModel implements PropertyChangeListener
   private BooleanProperty autoMineRunning;
   private IntegerProperty triggerKeyCode;
   private ObjectProperty<Rectangle> currentMiningRegion;
+  private StringProperty currentAutoMineScript;
   private BooleanProperty isViewActive;
 
   public AutoMineViewModel(Model model)
   {
     this.model = model;
     this.turnAmount = new SimpleIntegerProperty(model.getTurnAmount());
-    this.miningDurationMilliseconds=new SimpleIntegerProperty(model.getMiningDurationMilliseconds());
+    this.miningDurationMilliseconds = new SimpleIntegerProperty(
+        model.getMiningDurationMilliseconds());
     this.autoMineRunning = new SimpleBooleanProperty(
         model.isAutoMiningRunning());
     this.triggerKeyCode = new SimpleIntegerProperty(
         NativeKeyEvent.VC_CAPS_LOCK);
     this.currentMiningRegion = new SimpleObjectProperty<>(
         model.getCurrentMiningRegion());
+    this.currentAutoMineScript = new SimpleStringProperty(
+        model.getMiningMode().toString());
 
     this.isViewActive = new SimpleBooleanProperty(false);
     this.errorMessage = new SimpleStringProperty(
@@ -70,7 +75,7 @@ public class AutoMineViewModel implements PropertyChangeListener
       }
     });
 
-    isViewActive.addListener((observable, oldValue, newValue) -> {
+    this.isViewActive.addListener((observable, oldValue, newValue) -> {
       try
       {
         model.setAutoMiningViewActive(newValue);
@@ -82,11 +87,24 @@ public class AutoMineViewModel implements PropertyChangeListener
       }
     });
 
+    this.currentAutoMineScript.addListener((observable, oldValue, newValue) -> {
+      try
+      {
+        model.setMiningMode(MiningMode.valueOf(newValue));
+      }
+      catch (IllegalArgumentException e)
+      {
+        errorMessage.set("Invalid mining mode selected.");
+        currentAutoMineScript.set(oldValue);
+      }
+    });
+
     model.addListener("isAutoMiningRunning", this);
     model.addListener("miningTurn", this);
     model.addListener("error", this);
     model.addListener("miningRegionChanged", this);
     model.addListener("turnAmount", this);
+    model.addListener("miningMode", this);
   }
 
   public BooleanProperty isViewActiveProperty()
@@ -106,6 +124,7 @@ public class AutoMineViewModel implements PropertyChangeListener
     setViewActive(true);
     turnAmount.set(model.getTurnAmount());
     miningDurationMilliseconds.set(model.getMiningDurationMilliseconds());
+    currentAutoMineScript.set(model.getMiningMode().toString());
   }
 
   public void toggleAutoMining()
@@ -160,6 +179,11 @@ public class AutoMineViewModel implements PropertyChangeListener
     model.setMiningRegion(AutoMine.MINING_REGION_1080P);
   }
 
+  public StringProperty currentAutoMineScriptProperty()
+  {
+    return currentAutoMineScript;
+  }
+
   @Override public void propertyChange(PropertyChangeEvent evt)
   {
     switch (evt.getPropertyName())
@@ -191,6 +215,10 @@ public class AutoMineViewModel implements PropertyChangeListener
           turnAmount.set((Integer) evt.getNewValue());
         });
         break;
+      case "miningMode":
+        Platform.runLater(() -> {
+          currentAutoMineScript.set(evt.getNewValue().toString());
+        });
     }
     System.out.println(
         "ViewModel received property change: " + evt.getPropertyName() + " - "

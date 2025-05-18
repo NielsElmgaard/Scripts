@@ -34,11 +34,13 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
   private boolean isTriggerKeyPressed = false;
   private int turnAmount;
   private int miningDurationMilliseconds;
+  private MiningMode currentMiningMode;
 
   public AutoMine(int turnAmount, int miningDurationMilliseconds)
   {
     this.property = new PropertyChangeSupport(this);
     this.isRunning = false;
+    this.currentMiningMode = MiningMode.ZIC_ZAC;
     this.miningThread = new Thread();
     setTurnAmount(turnAmount);
     setMiningDurationMilliseconds(miningDurationMilliseconds);
@@ -96,6 +98,19 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     this.miningDurationMilliseconds = miningDurationMilliseconds;
   }
 
+  public MiningMode getCurrentMiningMode()
+  {
+    return currentMiningMode;
+  }
+
+  public void setCurrentMiningMode(MiningMode currentMiningMode)
+  {
+    MiningMode oldValue = this.currentMiningMode;
+    this.currentMiningMode = currentMiningMode;
+    property.firePropertyChange("miningMode", oldValue, this.currentMiningMode);
+    System.out.println("Mining mode updated: " + currentMiningMode);
+  }
+
   public void registerKeyListener()
   {
     if (!isListenerActive)
@@ -137,7 +152,14 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       this.isRunning = true;
       property.firePropertyChange("isAutoMiningRunning", oldValue,
           this.isRunning);
-      this.miningThread = new Thread(this::runMining);
+      if (currentMiningMode == MiningMode.ZIC_ZAC)
+      {
+        this.miningThread = new Thread(this::runMiningZicZac);
+      }
+      else if (currentMiningMode == MiningMode.HOLD_IN)
+      {
+        this.miningThread = new Thread(this::runMiningHoldIn);
+      }
       this.miningThread.setDaemon(true);
       this.miningThread.start();
     }
@@ -163,7 +185,50 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     }
   }
 
-  private void runMining()
+  private void runMiningHoldIn()
+  {
+    try
+    {
+      while (isRunning && !Thread.currentThread().isInterrupted())
+      {
+        robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.keyPress(KeyEvent.VK_W);
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+
+        if (!isRunning)
+        {
+          break;
+        }
+        Thread.sleep(100);
+      }
+
+    }
+    catch (InterruptedException e)
+    {
+      Thread.currentThread().interrupt();
+      System.err.println("Hold In mining thread interrupted.");
+    }
+    finally
+    {
+      try
+      {
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+        robot.keyRelease(KeyEvent.VK_W);
+        robot.keyRelease(KeyEvent.VK_A);
+        robot.keyRelease(KeyEvent.VK_S);
+        robot.keyRelease(KeyEvent.VK_D);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      }
+      catch (Exception ignored)
+      {
+      }
+      boolean oldValue = this.isRunning;
+      isRunning = false;
+      property.firePropertyChange("isAutoMiningRunning", oldValue, false);
+    }
+  }
+
+  private void runMiningZicZac()
   {
     try
     {
@@ -199,7 +264,8 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
         startTime = System.currentTimeMillis();
         while (isRunning && !Thread.currentThread().isInterrupted() && (
             System.currentTimeMillis() - startTime
-                < miningDurationMilliseconds+(miningDurationMilliseconds/2.5)))
+                < miningDurationMilliseconds + (miningDurationMilliseconds
+                / 2.5)))
         {
           Thread.sleep(100);
         }
@@ -233,7 +299,7 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
     {
       Thread.currentThread().interrupt();
 
-      System.err.println("Mining thread interrupted.");
+      System.err.println("Zic Zac Mining thread interrupted.");
     }
     finally
     {
