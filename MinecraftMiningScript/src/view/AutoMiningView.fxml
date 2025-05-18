@@ -3,12 +3,14 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="600.0" userData="Auto Mining Script" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.AutoMineViewController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="600.0" userData="Auto Mining Script" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.AutoMineViewController">
     <children>
       <HBox prefHeight="0.0" prefWidth="600.0">
          <children>
@@ -63,6 +65,31 @@
          <opaqueInsets>
             <Insets />
          </opaqueInsets>
+      </HBox>
+      <HBox prefHeight="127.0" prefWidth="600.0" spacing="50.0">
+         <children>
+            <Label text="Select Script:">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <RadioButton fx:id="holdInRadio" text="Hold in">
+               <toggleGroup>
+                  <ToggleGroup fx:id="scriptToggleGroup" />
+               </toggleGroup>
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </RadioButton>
+            <RadioButton fx:id="zicZacRadio" text="Zic Zac">
+               <toggleGroup>
+                  <fx:reference source="scriptToggleGroup" />
+               </toggleGroup>
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </RadioButton>
+         </children>
       </HBox>
         <HBox prefHeight="119.0" prefWidth="580.0">
             <children>
