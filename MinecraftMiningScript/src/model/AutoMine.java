@@ -170,6 +170,98 @@ public class AutoMine implements NamedPropertyChangeSubject, NativeKeyListener
       while (isRunning && !Thread.currentThread().isInterrupted())
       {
         robot.keyPress(KeyEvent.VK_CONTROL);
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+
+        long startTime = System.currentTimeMillis();
+
+        robot.keyPress(KeyEvent.VK_W);
+        robot.keyPress(KeyEvent.VK_D);
+
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_W);
+
+        robot.keyPress(KeyEvent.VK_S);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds+(miningDurationMilliseconds/2.5)))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_D);
+
+        robot.keyPress(KeyEvent.VK_A);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds+(miningDurationMilliseconds/2.5)))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_S);
+
+        robot.keyPress(KeyEvent.VK_W);
+        startTime = System.currentTimeMillis();
+        while (isRunning && !Thread.currentThread().isInterrupted() && (
+            System.currentTimeMillis() - startTime
+                < miningDurationMilliseconds))
+        {
+          Thread.sleep(100);
+        }
+        robot.keyRelease(KeyEvent.VK_A);
+
+        robot.keyRelease(KeyEvent.VK_W);
+
+        if (!isRunning)
+        {
+          break;
+        }
+
+        int oldValue = this.miningDurationMilliseconds;
+        property.firePropertyChange("miningTurn", oldValue,
+            this.miningDurationMilliseconds);
+        System.out.println("Mining for " + miningDurationMilliseconds / 1000
+            + " seconds. Turning 180...");
+      }
+    }
+    catch (InterruptedException e)
+    {
+      Thread.currentThread().interrupt();
+
+      System.err.println("Mining thread interrupted.");
+    }
+    finally
+    {
+      try
+      {
+        robot.keyRelease(KeyEvent.VK_CONTROL);
+        robot.keyRelease(KeyEvent.VK_W);
+        robot.keyRelease(KeyEvent.VK_A);
+        robot.keyRelease(KeyEvent.VK_S);
+        robot.keyRelease(KeyEvent.VK_D);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+      }
+      catch (Exception ignored)
+      {
+      }
+      boolean oldValue = this.isRunning;
+      isRunning = false;
+      property.firePropertyChange("isAutoMiningRunning", oldValue, false);
+    }
+  }
+
+  private void runMining2()
+  {
+    try
+    {
+      while (isRunning && !Thread.currentThread().isInterrupted())
+      {
+        robot.keyPress(KeyEvent.VK_CONTROL);
         robot.keyPress(KeyEvent.VK_W);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         long startTime = System.currentTimeMillis();

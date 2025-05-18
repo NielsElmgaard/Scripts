@@ -32,7 +32,11 @@ public class AutoFishingViewController
     this.root = root;
 
     errorLabel.textProperty().bind(viewModel.errorMessageProperty());
-    logArea.textProperty().bind(viewModel.ocrResultLogProperty());
+
+    viewModel.ocrResultLogProperty().addListener((obs, oldVal, newVal) -> {
+      logArea.setText(newVal);
+      logArea.positionCaret(logArea.getLength());
+    });
 
     Rectangle currentRegion = viewModel.currentFishingRegionProperty().get();
     if (currentRegion.equals(model.AutoFishing.FISHING_REGION_DEFAULT))

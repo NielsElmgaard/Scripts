@@ -35,6 +35,7 @@ public class ModelManager implements Model
     autoFishing.addListener("fishCaught",
         evt -> property.firePropertyChange(evt));
     autoFishing.addListener("error", evt -> property.firePropertyChange(evt));
+    autoFishing.addListener("ocrResult",evt -> property.firePropertyChange(evt));
 
     autoMine.addListener("isAutoMiningRunning",
         evt -> property.firePropertyChange(evt));
