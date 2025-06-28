@@ -3,11 +3,9 @@
     <output-path>$PROJECT_DIR$/out/artifacts/MinecraftMiningScript_jar</output-path>
     <root id="archive" name="MinecraftMiningScript.jar">
       <element id="module-output" name="MinecraftMiningScript" />
-
-      <element id="extracted-dir" path="$USER_HOME$/OneDrive - ViaUC/2. semester/PRO2/Øvelser/MyObserver-1.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jnativehook-2.2.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/OneDrive/Skrivebord/FM24Script/fm24script.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../jnativehook-2.2.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive - ViaUC/2. semester/PRO2/Øvelser/MyObserver-1.4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
-

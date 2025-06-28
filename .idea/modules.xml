@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AutoFishingScript/AutoFishingScript.iml" filepath="$PROJECT_DIR$/AutoFishingScript/AutoFishingScript.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FM24PraiseScript/FM24PraiseScript.iml" filepath="$PROJECT_DIR$/FM24PraiseScript/FM24PraiseScript.iml" />
       <module fileurl="file://$PROJECT_DIR$/MinecraftMiningScript/MinecraftMiningScript.iml" filepath="$PROJECT_DIR$/MinecraftMiningScript/MinecraftMiningScript.iml" />
       <module fileurl="file://$PROJECT_DIR$/Scripts.iml" filepath="$PROJECT_DIR$/Scripts.iml" />
     </modules>

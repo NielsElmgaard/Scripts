@@ -8,18 +8,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jnativehook-2.2.2" level="project" />
-    <orderEntry type="library" name="fm24script" level="project" />
     <orderEntry type="library" name="MyObserver-1.4" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/jnativehook-2.2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="net.sourceforge.tess4j" level="project" />
-    <orderEntry type="library" name="github.tomcat.slf4j.logback.tomcat85" level="project" />
+    <orderEntry type="library" name="fm24script" level="project" />
   </component>
 </module>

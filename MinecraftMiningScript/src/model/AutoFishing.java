@@ -37,7 +37,6 @@ public class AutoFishing
   private PropertyChangeSupport property;
   private boolean isListenerActive = false;
 
-
   public AutoFishing()
   {
     this.property = new PropertyChangeSupport(this);
@@ -85,7 +84,8 @@ public class AutoFishing
       }
       catch (Exception e)
       {
-        System.err.println("Error registering AutoFishing key listener: " + e.getMessage());
+        System.err.println(
+            "Error registering AutoFishing key listener: " + e.getMessage());
       }
     }
   }
@@ -100,7 +100,6 @@ public class AutoFishing
     }
   }
 
-
   public boolean isRunning()
   {
     return isRunning;
@@ -112,7 +111,8 @@ public class AutoFishing
     {
       boolean oldValue = this.isRunning;
       this.isRunning = true;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoFishingRunning", oldValue,
+          this.isRunning);
       this.fishingThread = new Thread(this::runFishing);
       this.fishingThread.setDaemon(true);
       this.fishingThread.start();
@@ -125,7 +125,8 @@ public class AutoFishing
     {
       boolean oldValue = this.isRunning;
       this.isRunning = false;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoFishingRunning", oldValue,
+          this.isRunning);
       if (fishingThread != null && fishingThread.isAlive())
       {
         fishingThread.interrupt();
@@ -147,7 +148,8 @@ public class AutoFishing
         BufferedImage screenshot = robot.createScreenCapture(
             currentFishingRegion);
 
-        File outputfile = new File("autoFish.png");
+        File outputfile = new File(System.getProperty("java.io.tmpdir"),
+            "autoFish.png");
         ImageIO.write(screenshot, "png", outputfile);
 
         String result = "";
@@ -162,7 +164,8 @@ public class AutoFishing
           System.err.println("Tesseract OCR error: " + e.getMessage());
           boolean oldValue = this.isRunning;
           isRunning = false;
-          property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+          property.firePropertyChange("isAutoFishingRunning", oldValue,
+              this.isRunning);
           break;
         }
         if (result.contains(FISHING_SUBTITLE))
@@ -185,7 +188,8 @@ public class AutoFishing
       Thread.currentThread().interrupt();
       boolean oldValue = this.isRunning;
       isRunning = false;
-      property.firePropertyChange("isAutoFishingRunning", oldValue, this.isRunning);
+      property.firePropertyChange("isAutoFishingRunning", oldValue,
+          this.isRunning);
       System.err.println("Fishing thread interrupted.");
     }
     catch (IOException e)
