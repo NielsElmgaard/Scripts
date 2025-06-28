@@ -119,8 +119,8 @@ public class PlayerPraiseAutomationWithUI extends Application
 
   private void startAutomation()
   {
-    if (running)
-      return; // Prevent multiple threads
+//    if (running)
+//      return; // Prevent multiple threads
     running = true;
     automationThread = new Thread(this::runAutomation);
     automationThread.setDaemon(true);
