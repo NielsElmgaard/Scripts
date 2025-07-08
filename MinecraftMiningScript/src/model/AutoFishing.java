@@ -171,7 +171,7 @@ public class AutoFishing
         if (result.contains(FISHING_SUBTITLE))
         {
           System.out.println("Fish detected! Performing actions.");
-          Thread.sleep(randomDelay(200, 400));
+          Thread.sleep(randomDelay(50, 150));
           robot.mousePress(InputEvent.BUTTON3_MASK);
           robot.mouseRelease(InputEvent.BUTTON3_MASK);
 
