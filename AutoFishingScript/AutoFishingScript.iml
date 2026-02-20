@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jnativehook-2.2.2" level="project" />
     <orderEntry type="library" name="MyObserver-1.4" level="project" />
+    <orderEntry type="library" name="net.sourceforge.tess4j1" level="project" />
   </component>
 </module>

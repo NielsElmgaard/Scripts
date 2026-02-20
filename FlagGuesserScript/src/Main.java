@@ -1,17 +1,20 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.TimeoutException;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
 
 public class Main
 {
+
+  private static final String QUIZ_URL = "https://quiz.jyllands-posten.dk/flagkampen-2025";
+  private static final int TOTAL_ROUNDS = 60;
+  private static final String FLAG_SELECTOR = ".question__content-image img";
+  private static final String ANSWER_SELECTOR = ".question__answers .question__answer-item";
+
   public static void main(String[] args)
   {
     WebDriverManager.chromedriver().setup();
@@ -19,130 +22,100 @@ public class Main
 
     try
     {
-      driver.get("https://quiz.jyllands-posten.dk/flagkampen-2025");
-      WebDriverWait webDriverWait = new WebDriverWait(driver,
-          Duration.ofSeconds(5));
-
-      String previousFlagUrl = "";
-
-      for (int i = 0; i < 60; i++)
-      {
-        System.out.println("--- Round " + (i + 1) + " ---");
-
-        // Quick check for flag change
-        WebElement flagImage = waitForFlagChange(webDriverWait,
-            previousFlagUrl);
-        String flagImgSrc = flagImage.getAttribute("src");
-        System.out.println("Flag: " + extractFlagId(flagImgSrc));
-
-        previousFlagUrl = flagImgSrc;
-
-        String correctCountry = FlagData.getCountryForFlagUrl(flagImgSrc);
-        if (correctCountry == null)
-        {
-          System.err.println("Unknown flag - clicking first option");
-          clickFirstOption(webDriverWait);
-          continue;
-        }
-
-        System.out.println("Looking for: " + correctCountry);
-
-        // Try to find and click the correct answer quickly
-        if (findAndClickAnswer(webDriverWait, correctCountry))
-        {
-          System.out.println("✓ Clicked: " + correctCountry);
-        }
-        else
-        {
-          // Fallback: wait a bit longer and try again
-          System.out.println("Retrying...");
-          Thread.sleep(500);
-          if (!findAndClickAnswer(webDriverWait, correctCountry))
-          {
-            System.err.println("Answer not found - clicking first option");
-            clickFirstOption(webDriverWait);
-          }
-        }
-
-        // Minimal wait for next question
-        Thread.sleep(200);
-      }
-
-      System.out.println("Quiz completed!");
-      Thread.sleep(Duration.ofMinutes(2).toMillis());
-
+      runQuiz(driver);
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      System.err.println("Error occured: " + e.getMessage());
     }
     finally
     {
-      System.out.println("Script finished.");
+      System.out.println("Existing browser...");
+      driver.quit();
     }
   }
 
-  private static WebElement waitForFlagChange(WebDriverWait wait,
-      String previousFlagUrl)
+  private static void runQuiz(WebDriver driver) throws InterruptedException
   {
-    if (previousFlagUrl.isEmpty())
+    driver.get(QUIZ_URL);
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    String previousFlagUrl = "";
+
+    for (int i = 1; i <= TOTAL_ROUNDS; i++)
     {
-      // First round - just wait for any flag
-      return wait.until(ExpectedConditions.presenceOfElementLocated(
-          By.cssSelector(".question__content-image img")));
+      System.out.println("--- Round " + i + " ---");
+
+      WebElement flagElement = waitForNewFlag(driver, wait, previousFlagUrl);
+      String currentFlagUrl = flagElement.getAttribute("src");
+      previousFlagUrl = currentFlagUrl;
+
+      String country = FlagData.getCountryByUrl(currentFlagUrl);
+
+      if (country != null)
+      {
+        System.out.println("Searching for: " + country);
+        handleAnswer(wait, country);
+      }
+      else
+      {
+        System.err.println("Unknown flag! Choosing first option.");
+        clickFirstAvailableOption(wait);
+      }
+
+      // Delay before next question
+      Thread.sleep(300);
     }
 
-    // Wait for flag to change
-    return wait.until(driver -> {
-      try
-      {
-        WebElement flagImage = driver.findElement(
-            By.cssSelector(".question__content-image img"));
-        String currentFlagUrl = flagImage.getAttribute("src");
-        return !currentFlagUrl.equals(previousFlagUrl) ? flagImage : null;
-      }
-      catch (Exception e)
-      {
-        return null;
-      }
-    });
+    System.out.println("The quiz is done!");
   }
 
-  private static boolean findAndClickAnswer(WebDriverWait wait,
-      String correctCountry)
+  private static void handleAnswer(WebDriverWait wait, String country)
   {
-    try
-    {
-      // Get all answer options
-      List<WebElement> answerOptions = wait.until(
-          ExpectedConditions.presenceOfAllElementsLocatedBy(
-              By.cssSelector(".question__answers .question__answer-item")));
+    boolean clicked = findAndClickAnswer(wait, country);
 
-      // Look for the correct answer
-      for (WebElement option : answerOptions)
-      {
-        String answerText = option.getText().trim();
-        if (answerText.equalsIgnoreCase(correctCountry))
-        {
-          option.click();
-          return true;
-        }
-      }
-      return false;
-    }
-    catch (TimeoutException e)
+    if (!clicked)
     {
-      return false;
+      System.out.println(
+          "Could not find the answer immediately. Trying again...");
+      executionDelay(500);
+      if (!findAndClickAnswer(wait, country))
+      {
+        clickFirstAvailableOption(wait);
+      }
     }
   }
 
-  private static void clickFirstOption(WebDriverWait wait)
+  private static boolean findAndClickAnswer(WebDriverWait wait, String country)
   {
     try
     {
       List<WebElement> options = wait.until(
           ExpectedConditions.presenceOfAllElementsLocatedBy(
-              By.cssSelector(".question__answers .question__answer-item")));
+              By.cssSelector(ANSWER_SELECTOR)));
+
+      for (WebElement option : options)
+      {
+        if (option.getText().trim().equalsIgnoreCase(country))
+        {
+          option.click();
+          return true;
+        }
+      }
+    }
+    catch (TimeoutException e)
+    {
+      return false;
+    }
+    return false;
+  }
+
+  private static void clickFirstAvailableOption(WebDriverWait wait)
+  {
+    try
+    {
+      List<WebElement> options = wait.until(
+          ExpectedConditions.presenceOfAllElementsLocatedBy(
+              By.cssSelector(ANSWER_SELECTOR)));
       if (!options.isEmpty())
       {
         options.get(0).click();
@@ -150,18 +123,29 @@ public class Main
     }
     catch (TimeoutException e)
     {
-      System.err.println("Could not find any answer options");
+      System.err.println("Ingen svarmuligheder fundet.");
     }
   }
 
-  private static String extractFlagId(String flagUrl)
+  private static WebElement waitForNewFlag(WebDriver driver, WebDriverWait wait,
+      String oldUrl)
   {
-    int lastSlash = flagUrl.lastIndexOf('/');
-    if (lastSlash != -1)
+    return wait.until(d -> {
+      WebElement img = d.findElement(By.cssSelector(FLAG_SELECTOR));
+      String src = img.getAttribute("src");
+      // Only return the element if it is a NEW flag
+      return !src.equals(oldUrl) ? img : null;
+    });
+  }
+
+  private static void executionDelay(int ms)
+  {
+    try
     {
-      return flagUrl.substring(lastSlash + 1,
-          lastSlash + 9); // First 8 chars of filename
+      Thread.sleep(ms);
     }
-    return flagUrl;
+    catch (InterruptedException ignored)
+    {
+    }
   }
 }

@@ -1,18 +1,31 @@
-import java.awt.*;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.util.concurrent.TimeUnit;
 
-public class MouseCoordinateFinder {
-  public static void main(String[] args) {
-    // Create an event listener to get mouse position
-    while (true) {
-      // Get the current mouse position
-      Point mousePos = MouseInfo.getPointerInfo().getLocation();
-      System.out.println("Current Mouse Position: X = " + mousePos.x + ", Y = " + mousePos.y);
+public class MouseCoordinateFinder
+{
 
-      try {
-        Thread.sleep(500); // Sleep for half a second before checking again
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+  public static void main(String[] args)
+  {
+    try
+    {
+      while (!Thread.currentThread().isInterrupted())
+      {
+        printMousePosition();
+        TimeUnit.MILLISECONDS.sleep(500);
       }
     }
+    catch (InterruptedException e)
+    {
+      System.err.println(
+          MouseCoordinateFinder.class.getName() + " was interrupted.");
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private static void printMousePosition()
+  {
+    Point location = MouseInfo.getPointerInfo().getLocation();
+    System.out.printf("X: %d | Y: %d%n", location.x, location.y);
   }
 }
